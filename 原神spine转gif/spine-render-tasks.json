@@ -1,0 +1,22 @@
+{
+    "defaults": {
+        "scale": 1,
+        "format": "gif",
+        "frameWorkers": 8,
+        "keepFrames": true,
+        "skipExistingOutput": true,
+        "overwrite": true
+    },
+    "jobs": [
+        {
+            "skeleton": "ren",
+            "filePrefix": "genshin",
+            "animations": ["idel"]
+        },
+        {
+            "skeleton": "xnnkv",
+            "filePrefix": "genshin",
+            "animations": ["in"]
+        }
+    ]
+}

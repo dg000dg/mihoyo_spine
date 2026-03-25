@@ -1,0 +1,12 @@
+{
+  "name": "genshin-spine-to-gif",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "convert": "node ./spine-batch-render.js"
+  },
+  "dependencies": {
+    "@esotericsoftware/spine-canvaskit": "^4.2.108",
+    "canvaskit-wasm": "^0.41.0"
+  }
+}
