@@ -9,6 +9,8 @@
   const IDLE_CARD_MESSAGE = "鼠标悬停预览动画。";
   const GIF_WORKER_SCRIPT_URL = "/vendor/gif.worker.js";
   const GIF_CAPTURE_FPS = 12;
+  const THEME_STORAGE_KEY = "spine_theme";
+  const THEME_IDS = ["mondstadt", "liyue", "inazuma", "sumeru", "fontaine", "natlan", "snezhnaya", "moon"];
 
   const dom = {
     activityPickerButton: document.getElementById("activityPickerButton"),
@@ -18,6 +20,7 @@
     activityPickerResize: document.getElementById("activityPickerResize"),
     activityPickerList: document.getElementById("activityPickerList"),
     activityPickerEmpty: document.getElementById("activityPickerEmpty"),
+    themeSelect: document.getElementById("themeSelect"),
     urlInput: document.getElementById("urlInput"),
     localFolderButton: document.getElementById("localFolderButton"),
     localFolderInput: document.getElementById("localFolderInput"),
@@ -57,7 +60,9 @@
     statusTone: "idle",
     activeGifExportCardId: "",
     activeGifExportLabel: "",
-    activeGifExportProgress: 0
+    activeGifExportProgress: 0,
+    frameSyncRafId: 0,
+    themeId: "mondstadt"
   };
 
   function initialize() {
@@ -82,16 +87,61 @@
     window.addEventListener("beforeunload", () => {
       closePreviewModal();
       disposeAllPlayers();
+      if (state.frameSyncRafId) {
+        window.cancelAnimationFrame(state.frameSyncRafId);
+        state.frameSyncRafId = 0;
+      }
     });
     window.addEventListener("pointermove", handleActivityPickerResizePointerMove);
     window.addEventListener("pointerup", handleActivityPickerResizePointerUp);
     window.addEventListener("pointercancel", handleActivityPickerResizePointerUp);
     window.addEventListener("resize", handleWindowResize);
 
+    initializeThemeControl();
     loadActivityLinks();
     renderExportProgressState();
     updateBadges();
     applyActivityPickerWidth();
+    startFrameSyncLoop();
+  }
+
+  function normalizeThemeId(value) {
+    const themeId = String(value || "").trim().toLowerCase();
+    return THEME_IDS.includes(themeId) ? themeId : "mondstadt";
+  }
+
+  function applyTheme(themeId) {
+    const nextThemeId = normalizeThemeId(themeId);
+    state.themeId = nextThemeId;
+    document.documentElement.setAttribute("data-theme", nextThemeId);
+    if (dom.themeSelect && dom.themeSelect.value !== nextThemeId) {
+      dom.themeSelect.value = nextThemeId;
+    }
+  }
+
+  function initializeThemeControl() {
+    let initialThemeId = "mondstadt";
+    try {
+      initialThemeId = normalizeThemeId(window.localStorage.getItem(THEME_STORAGE_KEY) || "mondstadt");
+    } catch (_error) {
+      initialThemeId = "mondstadt";
+    }
+
+    applyTheme(initialThemeId);
+
+    if (!dom.themeSelect) {
+      return;
+    }
+
+    dom.themeSelect.value = state.themeId;
+    dom.themeSelect.addEventListener("change", () => {
+      const nextThemeId = normalizeThemeId(dom.themeSelect.value);
+      applyTheme(nextThemeId);
+      try {
+        window.localStorage.setItem(THEME_STORAGE_KEY, nextThemeId);
+      } catch (_error) {
+      }
+    });
   }
 
   function getActivityPickerWidthBounds() {
@@ -556,9 +606,81 @@
     return normalized;
   }
 
+  function getGroupExportName(group) {
+    const preferred = group && (group.customFileName || group.fileName)
+      ? (group.customFileName || group.fileName)
+      : "spine";
+    return String(preferred || "").trim();
+  }
+
+  function buildCardNameLabel(group) {
+    const fileName = getGroupExportName(group) || "未命名 Spine";
+    const sizeLabel = formatImageByteSize(group && group.imageByteSize);
+    return sizeLabel ? `${fileName} (${sizeLabel})` : fileName;
+  }
+
+  function updateCardNameDisplay(card) {
+    if (!card || !card.name) {
+      return;
+    }
+
+    card.name.textContent = buildCardNameLabel(card.group);
+    card.name.title = `${getGroupExportName(card.group)}\n双击可重命名`;
+  }
+
+  function beginCardRename(card) {
+    if (!card || card.isRenaming || !card.renameInput || !card.name) {
+      return;
+    }
+
+    card.isRenaming = true;
+    card.renameInput.value = getGroupExportName(card.group);
+    card.renameInput.hidden = false;
+    card.name.hidden = true;
+    card.renameInput.focus();
+    card.renameInput.select();
+  }
+
+  function commitCardRename(card, options) {
+    if (!card || !card.isRenaming || !card.renameInput || !card.name) {
+      return;
+    }
+
+    const keepEditingOnEmpty = !options || options.keepEditingOnEmpty !== false;
+    const nextName = sanitizeFileNameSegment(card.renameInput.value || "");
+    if (!nextName) {
+      if (keepEditingOnEmpty) {
+        setStatus("名称不能为空，请输入有效名称。", "error");
+        card.renameInput.focus();
+        card.renameInput.select();
+        return;
+      }
+      card.group.customFileName = "";
+    } else {
+      card.group.customFileName = nextName;
+    }
+
+    card.isRenaming = false;
+    card.renameInput.hidden = true;
+    card.name.hidden = false;
+    updateCardNameDisplay(card);
+  }
+
+  function cancelCardRename(card) {
+    if (!card || !card.isRenaming || !card.renameInput || !card.name) {
+      return;
+    }
+
+    card.isRenaming = false;
+    card.renameInput.hidden = true;
+    card.name.hidden = false;
+    card.renameInput.value = getGroupExportName(card.group);
+    updateCardNameDisplay(card);
+  }
+
   function buildGifFileName(card) {
     const activityName = sanitizeFileNameSegment(state.sessionArchiveBaseName || "spine_export") || "spine_export";
-    const resourceName = sanitizeFileNameSegment(card && card.group && card.group.fileName ? card.group.fileName : "spine") || "spine";
+    const resourceName = sanitizeFileNameSegment(getGroupExportName(card && card.group ? card.group : null) || "spine") || "spine";
     return `${activityName}-${resourceName}.gif`;
   }
 
@@ -579,6 +701,210 @@
       return;
     }
     fillElement.style.width = `${(clampProgress(progress) * 100).toFixed(1)}%`;
+  }
+
+  function getSelectedAnimationItem(card) {
+    if (!card || !Array.isArray(card.animations) || !card.animations.length) {
+      return null;
+    }
+    return card.animations.find((item) => item.index === card.selectedAnimationIndex) || card.animations[0] || null;
+  }
+
+  function getAnimationDurationSeconds(animation) {
+    const duration = Number(animation && animation.duration);
+    return Number.isFinite(duration) && duration > 0 ? duration : 0;
+  }
+
+  function setCardFrameScrubberValue(card, progress) {
+    if (!card || !card.frameScrubber || !card.frameScrubberValue) {
+      return;
+    }
+
+    const safeProgress = clampProgress(progress);
+    card.frameScrubber.value = String(Math.round(safeProgress * 1000));
+    card.frameScrubberValue.textContent = `${Math.round(safeProgress * 100)}%`;
+  }
+
+  function seekCardToProgress(card, progress) {
+    if (!card || !card.player) {
+      return false;
+    }
+
+    const animationItem = getSelectedAnimationItem(card);
+    if (!animationItem) {
+      return false;
+    }
+
+    const durationSeconds = getAnimationDurationSeconds(animationItem.animation);
+    if (durationSeconds <= 0) {
+      return false;
+    }
+
+    const animationName = getAnimationPlaybackName(animationItem.animation);
+    if (!animationName) {
+      return false;
+    }
+
+    const safeProgress = clampProgress(progress);
+    const targetTime = durationSeconds * safeProgress;
+
+    if (!setAnimationViaState(card.player, animationName, true, { skipPlay: true })) {
+      return false;
+    }
+
+    const animationState = card.player.animationState;
+    const current = typeof animationState.getCurrent === "function"
+      ? animationState.getCurrent(0)
+      : animationState.tracks && animationState.tracks[0];
+    if (!current) {
+      return false;
+    }
+
+    try {
+      current.trackTime = targetTime;
+      if (typeof current.animationLast === "number") {
+        current.animationLast = targetTime;
+      }
+      if (typeof current.trackLast === "number") {
+        current.trackLast = targetTime;
+      }
+      if (typeof current.nextAnimationLast === "number") {
+        current.nextAnimationLast = targetTime;
+      }
+
+      if (typeof animationState.apply === "function") {
+        animationState.apply(card.player.skeleton);
+      }
+
+      const runtime = getPlayerRuntime(card.player);
+      const physicsMode = runtime && runtime.Physics && typeof runtime.Physics.update === "number"
+        ? runtime.Physics.update
+        : undefined;
+      if (card.player.skeleton && typeof card.player.skeleton.updateWorldTransform === "function") {
+        card.player.skeleton.updateWorldTransform(physicsMode);
+      }
+      if (typeof card.player.drawFrame === "function") {
+        card.player.drawFrame(false);
+      }
+
+      setCardFrameScrubberValue(card, safeProgress);
+      return true;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function enableManualFrameControl(card) {
+    if (!card) {
+      return;
+    }
+
+    card.isManualFrameControl = true;
+    if (card.player && typeof card.player.pause === "function") {
+      try {
+        card.player.pause();
+      } catch (_error) {
+      }
+    }
+  }
+
+  function resumeAutomaticFrameControl(card) {
+    if (!card) {
+      return;
+    }
+
+    card.isManualFrameControl = false;
+    if (card.player && typeof card.player.play === "function") {
+      try {
+        card.player.play();
+      } catch (_error) {
+      }
+    }
+  }
+
+  function getCardPlaybackProgress(card) {
+    if (!card || !card.player) {
+      return 0;
+    }
+
+    const animationItem = getSelectedAnimationItem(card);
+    if (!animationItem) {
+      return 0;
+    }
+
+    const durationSeconds = getAnimationDurationSeconds(animationItem.animation);
+    if (durationSeconds <= 0) {
+      return 0;
+    }
+
+    const animationState = card.player.animationState;
+    if (!animationState) {
+      return 0;
+    }
+
+    const current = typeof animationState.getCurrent === "function"
+      ? animationState.getCurrent(0)
+      : animationState.tracks && animationState.tracks[0];
+    const trackTime = Number(current && current.trackTime);
+    if (!Number.isFinite(trackTime)) {
+      return 0;
+    }
+
+    return clampProgress((trackTime % durationSeconds) / durationSeconds);
+  }
+
+  function refreshCardFrameScrubber(card) {
+    if (!card || !card.frameScrubber || !card.frameScrubberValue || !card.frameScrubberPlayButton) {
+      return;
+    }
+
+    const animationItem = getSelectedAnimationItem(card);
+    const available = Boolean(
+      card.player
+      && card.isModalOpen
+      && animationItem
+      && getAnimationDurationSeconds(animationItem.animation) > 0
+    );
+
+    card.frameScrubber.disabled = !available;
+    card.frameScrubberPlayButton.disabled = !available;
+    card.frameScrubberPlayButton.classList.toggle("is-active", Boolean(available && card.isManualFrameControl));
+    card.frameScrubber.title = available
+      ? "拖动以定位当前动画帧"
+      : (card.isModalOpen ? "当前运行时不支持拖动定位" : "仅全屏预览时可用");
+    card.frameScrubberPlayButton.title = available
+      ? (card.isManualFrameControl ? "恢复自动播放" : "当前为自动播放")
+      : "当前不可播放";
+    card.frameScrubberWrap.hidden = !available;
+
+    if (!available) {
+      setCardFrameScrubberValue(card, 0);
+      return;
+    }
+
+    if (card.isScrubbing) {
+      return;
+    }
+
+    setCardFrameScrubberValue(card, getCardPlaybackProgress(card));
+  }
+
+  function stepFrameSyncLoop() {
+    state.frameSyncRafId = window.requestAnimationFrame(stepFrameSyncLoop);
+
+    for (const card of state.cards.values()) {
+      if (!card || card.isScrubbing || card.isManualFrameControl || !card.player || !card.frameScrubberWrap || card.frameScrubberWrap.hidden) {
+        continue;
+      }
+      setCardFrameScrubberValue(card, getCardPlaybackProgress(card));
+    }
+  }
+
+  function startFrameSyncLoop() {
+    if (state.frameSyncRafId) {
+      return;
+    }
+    state.frameSyncRafId = window.requestAnimationFrame(stepFrameSyncLoop);
   }
 
   async function waitForAnimationFrames(frameCount) {
@@ -932,10 +1258,6 @@
   }
 
   function setAnimationViaState(player, animationName, loop, options) {
-    if (getPlayerRuntimeKey(player) === "3.8") {
-      return false;
-    }
-
     const animationState = player && player.animationState;
     if (!animationState || typeof animationState.setAnimation !== "function" || !animationName) {
       return false;
@@ -1284,9 +1606,20 @@
   }
 
   async function handleDownloadClick() {
-    const selectedGroupIds = Array.from(state.cards.values())
-      .filter((card) => card.checkbox.checked)
-      .map((card) => card.group.id);
+    const selectedCards = Array.from(state.cards.values()).filter((card) => card.checkbox.checked);
+    const selectedGroupIds = selectedCards.map((card) => card.group.id);
+    const groupRenames = {};
+
+    selectedCards.forEach((card) => {
+      const customName = sanitizeFileNameSegment(card && card.group ? card.group.customFileName : "");
+      if (!customName) {
+        return;
+      }
+
+      if (customName !== String(card.group.fileName || "")) {
+        groupRenames[card.group.id] = customName;
+      }
+    });
 
     if (!state.sessionId) {
       setStatus("当前没有可下载的提取会话。", "error");
@@ -1309,7 +1642,8 @@
         },
         body: JSON.stringify({
           sessionId: state.sessionId,
-          groupIds: selectedGroupIds
+          groupIds: selectedGroupIds,
+          groupRenames
         })
       });
 
@@ -1386,8 +1720,41 @@
 
     const name = document.createElement("div");
     name.className = "spine-name";
-    name.textContent = buildGroupDisplayName(group);
-    name.title = name.textContent;
+    name.textContent = buildCardNameLabel(group);
+
+    const renameInput = document.createElement("input");
+    renameInput.type = "text";
+    renameInput.className = "mini-select spine-name-input";
+    renameInput.hidden = true;
+    renameInput.maxLength = 180;
+    renameInput.title = "输入后按 Enter 保存，Esc 取消";
+
+    const frameScrubberWrap = document.createElement("label");
+    frameScrubberWrap.className = "frame-scrubber";
+    frameScrubberWrap.hidden = true;
+    frameScrubberWrap.title = "拖动以定位当前动画帧";
+
+    const frameScrubber = document.createElement("input");
+    frameScrubber.type = "range";
+    frameScrubber.min = "0";
+    frameScrubber.max = "1000";
+    frameScrubber.step = "1";
+    frameScrubber.value = "0";
+    frameScrubber.className = "frame-scrubber__input";
+
+    const frameScrubberValue = document.createElement("span");
+    frameScrubberValue.className = "frame-scrubber__value";
+    frameScrubberValue.textContent = "0%";
+
+    const frameScrubberPlayButton = document.createElement("button");
+    frameScrubberPlayButton.type = "button";
+    frameScrubberPlayButton.className = "frame-scrubber__play-button";
+    frameScrubberPlayButton.textContent = "播放";
+    frameScrubberPlayButton.title = "恢复自动播放";
+
+    frameScrubberWrap.appendChild(frameScrubber);
+    frameScrubberWrap.appendChild(frameScrubberValue);
+    frameScrubberWrap.appendChild(frameScrubberPlayButton);
 
     const animationSelect = document.createElement("select");
     animationSelect.className = "mini-select animation-select";
@@ -1452,6 +1819,8 @@
     preview.appendChild(overlay);
     toolbar.appendChild(checkbox);
     toolbar.appendChild(name);
+    toolbar.appendChild(renameInput);
+    toolbar.appendChild(frameScrubberWrap);
     toolbar.appendChild(animationSelect);
     toolbar.appendChild(exportGifButton);
     toolbar.appendChild(exportProgress);
@@ -1481,6 +1850,12 @@
     const card = {
       root,
       group,
+      name,
+      renameInput,
+      frameScrubberWrap,
+      frameScrubber,
+      frameScrubberValue,
+      frameScrubberPlayButton,
       checkbox,
       animationSelect,
       exportGifButton,
@@ -1511,8 +1886,62 @@
       isModalOpen: false,
       placeholder: null,
       originalParent: null,
-      originalNextSibling: null
+      originalNextSibling: null,
+      isRenaming: false,
+      isScrubbing: false,
+      isManualFrameControl: false
     };
+
+    name.addEventListener("dblclick", () => {
+      beginCardRename(card);
+    });
+    renameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        commitCardRename(card);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelCardRename(card);
+      }
+    });
+    renameInput.addEventListener("blur", () => {
+      if (!card.isRenaming) {
+        return;
+      }
+      commitCardRename(card, { keepEditingOnEmpty: false });
+    });
+    frameScrubber.addEventListener("pointerdown", () => {
+      enableManualFrameControl(card);
+      card.isScrubbing = true;
+    });
+    frameScrubber.addEventListener("pointerup", () => {
+      card.isScrubbing = false;
+      refreshCardFrameScrubber(card);
+    });
+    frameScrubber.addEventListener("pointercancel", () => {
+      card.isScrubbing = false;
+      refreshCardFrameScrubber(card);
+    });
+    frameScrubber.addEventListener("change", () => {
+      card.isScrubbing = false;
+      refreshCardFrameScrubber(card);
+    });
+    frameScrubber.addEventListener("input", () => {
+      enableManualFrameControl(card);
+      const progress = Number(frameScrubber.value || 0) / 1000;
+      if (!seekCardToProgress(card, progress)) {
+        setCardFrameScrubberValue(card, progress);
+      }
+    });
+    frameScrubberPlayButton.addEventListener("click", () => {
+      resumeAutomaticFrameControl(card);
+      refreshCardFrameScrubber(card);
+    });
+    updateCardNameDisplay(card);
+    refreshCardFrameScrubber(card);
 
     return card;
   }
@@ -1526,7 +1955,14 @@
       card.exportGifButton.hidden = !isActiveModal;
       card.exportProgress.hidden = !isActiveModal || !card.isExportingGif;
       updateCardExportProgress(card, card.exportProgressAmount || 0);
+      if (!isActiveModal && card.frameScrubberWrap) {
+        card.frameScrubberWrap.hidden = true;
+        if (card.frameScrubber) {
+          card.frameScrubber.disabled = true;
+        }
+      }
       card.exportGifButton.disabled = !isActiveModal || card.isExportingGif || !card.animations.length || otherExportActive;
+      refreshCardFrameScrubber(card);
       card.exportGifButton.textContent = card.isExportingGif ? "导出中..." : "导出GIF";
       card.exportGifButton.title = card.isExportingGif
         ? "正在导出 GIF"
@@ -1622,6 +2058,7 @@
     dom.previewModal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     card.isVisible = false;
+    refreshCardFrameScrubber(card);
     syncFullscreenButtons();
   }
 
@@ -1977,9 +2414,11 @@
       card.selectedAnimationIndex = preferredIndex;
       card.animationSelect.value = String(preferredIndex);
       refreshPlayerAfterPoseChange(card.player, preferredItem.animation);
+      refreshCardFrameScrubber(card);
     } else {
       card.animationSelect.hidden = true;
       card.animationSelect.innerHTML = "";
+      refreshCardFrameScrubber(card);
     }
 
     if (skinNames.length > 1) {
@@ -2013,6 +2452,7 @@
       const animationIndex = Number(card.animationSelect.value);
       card.selectedAnimationIndex = animationIndex;
       playAnimation(card, animationIndex);
+      refreshCardFrameScrubber(card);
     };
   }
 
@@ -2036,6 +2476,7 @@
         card.player,
         card.animations.find((item) => item.index === card.selectedAnimationIndex)?.animation
       );
+      refreshCardFrameScrubber(card);
     };
   }
 
@@ -2090,9 +2531,11 @@
     if (!animationItem) return;
 
     try {
+      card.isManualFrameControl = false;
       applyPreviewAnimation(card.player, animationItem.animation);
       card.selectedAnimationIndex = animationIndex;
       card.animationSelect.value = String(animationIndex);
+      refreshCardFrameScrubber(card);
     } catch (error) {
       console.error(error);
       setCardOverlay(card, "动画切换失败。\n" + getErrorMessage(error), "error");
@@ -2148,6 +2591,9 @@
   }
 
   function disposeCardPlayer(card, overlayMessage) {
+    card.isScrubbing = false;
+    card.isManualFrameControl = false;
+
     if (card.player) {
       try {
         releaseCanvasContext(card.mount);
@@ -2166,6 +2612,7 @@
       setCardOverlay(card, IDLE_CARD_MESSAGE, "idle");
     }
 
+    refreshCardFrameScrubber(card);
     processLoadQueue();
   }
 

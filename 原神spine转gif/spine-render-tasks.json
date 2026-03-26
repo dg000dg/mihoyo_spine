@@ -9,14 +9,9 @@
     },
     "jobs": [
         {
-            "skeleton": "ren",
-            "filePrefix": "genshin",
-            "animations": ["idel"]
-        },
-        {
-            "skeleton": "xnnkv",
-            "filePrefix": "genshin",
-            "animations": ["in"]
+            "skeleton": "pc_aibi",
+            "filePrefix": "zzz",
+            "animations": ["all"]
         }
     ]
 }

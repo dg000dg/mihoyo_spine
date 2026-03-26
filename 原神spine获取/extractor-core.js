@@ -314,12 +314,36 @@
 
   function extractInlineSpines(modules, webpackRequire) {
     const spineManifest = {};
+    const mainManifest = [];
     const inlinePattern = /(?:["']([^"']+)["']|([A-Za-z_$][A-Za-z0-9_$]*)):\{atlas:[A-Za-z_$][A-Za-z0-9_$]*\((\d+)\),json:[A-Za-z_$][A-Za-z0-9_$]*\((\d+)\)\}/g;
+    const inlineArrayPattern = /(?:id|spineId)\s*:\s*["']([^"']+)["'][\s\S]{0,320}?atlas\s*:\s*[A-Za-z_$][A-Za-z0-9_$]*\((\d+)\)\s*,\s*json\s*:\s*[A-Za-z_$][A-Za-z0-9_$]*\((\d+)\)\s*,\s*(?:img|images)\s*:\s*\[([\s\S]{0,1200}?)\]/g;
+    const inlineImagePattern = /src\s*:\s*[A-Za-z_$][A-Za-z0-9_$]*\((\d+)\)(?:[\s\S]{0,120}?id\s*:\s*["']([^"']+)["'])?/g;
+
+    function unwrapRequiredValue(value, kind) {
+      if (typeof value === "string") {
+        return value;
+      }
+      if (value && typeof value === "object") {
+        if (typeof value.default === "string") {
+          return value.default;
+        }
+        if (kind === "json") {
+          try {
+            return JSON.stringify(value);
+          } catch (_error) {
+            return "";
+          }
+        }
+      }
+      return "";
+    }
 
     Object.keys(modules).forEach((key) => {
       const source = modules[key].toString();
       if (!source.includes(":{atlas:") || !source.includes(",json:")) {
-        return;
+        if (!(source.includes("atlas:") && source.includes("json:") && source.includes("id:"))) {
+          return;
+        }
       }
 
       for (const match of source.matchAll(inlinePattern)) {
@@ -328,8 +352,8 @@
         const jsonModuleId = match[4];
 
         try {
-          const atlas = webpackRequire(atlasModuleId);
-          const json = webpackRequire(jsonModuleId);
+          const atlas = unwrapRequiredValue(webpackRequire(atlasModuleId), "atlas");
+          const json = unwrapRequiredValue(webpackRequire(jsonModuleId), "json");
           if (!atlas || !json) {
             continue;
           }
@@ -343,11 +367,49 @@
           console.warn("[extractInlineSpines] failed to resolve", spineId, error);
         }
       }
+
+      for (const match of source.matchAll(inlineArrayPattern)) {
+        const spineId = match[1];
+        const atlasModuleId = match[2];
+        const jsonModuleId = match[3];
+        const imageBlock = String(match[4] || "");
+
+        try {
+          const atlas = unwrapRequiredValue(webpackRequire(atlasModuleId), "atlas");
+          const json = unwrapRequiredValue(webpackRequire(jsonModuleId), "json");
+          if (!atlas || !json) {
+            continue;
+          }
+
+          spineManifest[spineId] = {
+            atlas,
+            json,
+            module: "spine"
+          };
+
+          for (const imageMatch of imageBlock.matchAll(inlineImagePattern)) {
+            const imageModuleId = imageMatch[1];
+            const declaredId = imageMatch[2];
+            const src = unwrapRequiredValue(webpackRequire(imageModuleId), "image");
+            if (!src) {
+              continue;
+            }
+            const fallbackId = normalizeResourceFileName(basename(src)).replace(/\.[^.]+$/, "") || spineId;
+            mainManifest.push({
+              id: declaredId || fallbackId,
+              src,
+              module: "spine"
+            });
+          }
+        } catch (error) {
+          console.warn("[extractInlineSpines] failed to resolve inline array spine", spineId, error);
+        }
+      }
     });
 
     return {
       SPINE_MANIFEST: spineManifest,
-      MAIN_MANIFEST: []
+      MAIN_MANIFEST: dedupeResources(mainManifest)
     };
   }
 
@@ -681,6 +743,17 @@
       preparedHtml = preparedHtml.replace(/<script type="text\/javascript">/g, "<script type=\"text/dontexecute\">");
     } else {
       let entryName = "";
+      const chunkCandidates = [];
+      try {
+        const eventMatch = String(new URL(url).pathname || "").match(/\/event\/([^/?#]+)/i);
+        if (eventMatch && eventMatch[1]) {
+          const token = String(eventMatch[1]).split("-")[0].replace(/[^A-Za-z0-9_$]/g, "");
+          if (token) {
+            chunkCandidates.push(`webpackChunk${token}`);
+          }
+        }
+      } catch (_error) {
+      }
 
       if (preparedHtml.includes("Symbol.toStringTag") && preparedHtml.includes("Object.defineProperty")) {
         const parser = new DOMParser();
@@ -716,6 +789,38 @@
           "window.webpackJsonp_ = [];\n" +
           "window.cachedModules = [];\n" +
           "window.loadedModules = [];\n" +
+          "window.__chunkCandidates = " + JSON.stringify(chunkCandidates) + ";\n" +
+          "window.__hookWebpackChunk = (name) => {\n" +
+          "  if (!name) return;\n" +
+          "  let target = [];\n" +
+          "  const proxy = new Proxy({}, {\n" +
+          "    get: (_obj, prop) => {\n" +
+          "      if (prop === 'push') {\n" +
+          "        return (...entries) => {\n" +
+          "          cachedModules.push(...entries);\n" +
+          "          return target.push(...entries);\n" +
+          "        };\n" +
+          "      }\n" +
+          "      return target[prop];\n" +
+          "    },\n" +
+          "    set: (_obj, prop, value) => {\n" +
+          "      target[prop] = value;\n" +
+          "      return true;\n" +
+          "    }\n" +
+          "  });\n" +
+          "  Object.defineProperty(window, name, {\n" +
+          "    configurable: true,\n" +
+          "    enumerable: false,\n" +
+          "    get: () => proxy,\n" +
+          "    set: (value) => {\n" +
+          "      target = Array.isArray(value) ? value : [];\n" +
+          "      if (Array.isArray(value)) {\n" +
+          "        cachedModules.push(...value);\n" +
+          "      }\n" +
+          "    }\n" +
+          "  });\n" +
+          "};\n" +
+          "window.__chunkCandidates.forEach(window.__hookWebpackChunk);\n" +
           "window.webpackJsonpProxy = new Proxy(webpackJsonp_, {\n" +
           "  get: (target, prop) => {\n" +
           "    if (prop === 'push') {\n" +
@@ -783,7 +888,42 @@
     });
   }
 
-  function extractModulesFromFrame(frame) {
+  function extractModulesFromChunkEntries(entries) {
+    const modules = {};
+    if (!Array.isArray(entries)) {
+      return modules;
+    }
+
+    entries.forEach((entry) => {
+      if (!Array.isArray(entry) || !entry[1] || typeof entry[1] !== "object") {
+        return;
+      }
+      Object.assign(modules, entry[1]);
+    });
+
+    return modules;
+  }
+
+  function extractModulesFromChunkSource(source) {
+    const sandbox = {};
+    try {
+      Function("self", "window", "globalThis", source)(sandbox, sandbox, sandbox);
+    } catch (_error) {
+      return {};
+    }
+
+    const modules = {};
+    Object.keys(sandbox).forEach((key) => {
+      if (!/^webpackChunk/i.test(key)) {
+        return;
+      }
+      const chunkEntries = sandbox[key];
+      Object.assign(modules, extractModulesFromChunkEntries(chunkEntries));
+    });
+    return modules;
+  }
+
+  async function extractModulesFromFrame(frame) {
     if (frame.contentWindow.cachedModules) {
       let modules = Object.assign({}, frame.contentWindow.loadedModules);
       for (const item of frame.contentWindow.cachedModules) {
@@ -794,17 +934,49 @@
 
     const webpackJsonp = frame.contentWindow.webpackJsonp;
     const vendors = webpackJsonp && webpackJsonp.find((entry) => entry[0].includes("vendors"));
-    if (!vendors) {
-      throw new Error("Load vendors.js failed.");
+    if (vendors) {
+      const index = webpackJsonp.find((entry) => entry[0].includes("index"));
+      if (!index) {
+        throw new Error("Load index.js failed.");
+      }
+
+      const runtime = webpackJsonp.find((entry) => entry[0].includes("runtime"));
+      return Object.assign({}, vendors[1], index[1], runtime ? runtime[1] : {});
     }
 
-    const index = webpackJsonp.find((entry) => entry[0].includes("index"));
-    if (!index) {
-      throw new Error("Load index.js failed.");
+    const modulesFromWindowChunks = {};
+    Object.keys(frame.contentWindow).forEach((key) => {
+      if (!/^webpackChunk/i.test(key)) {
+        return;
+      }
+      const entries = frame.contentWindow[key];
+      Object.assign(modulesFromWindowChunks, extractModulesFromChunkEntries(entries));
+    });
+    if (Object.keys(modulesFromWindowChunks).length) {
+      return modulesFromWindowChunks;
     }
 
-    const runtime = webpackJsonp.find((entry) => entry[0].includes("runtime"));
-    return Object.assign({}, vendors[1], index[1], runtime ? runtime[1] : {});
+    const scriptTags = Array.from(frame.contentDocument.querySelectorAll("script[src]"));
+    const modulesFromScriptSources = {};
+    for (const scriptTag of scriptTags) {
+      const src = scriptTag && scriptTag.src ? scriptTag.src : "";
+      if (!src) {
+        continue;
+      }
+
+      try {
+        const response = await fetch(src);
+        const source = await response.text();
+        Object.assign(modulesFromScriptSources, extractModulesFromChunkSource(source));
+      } catch (_error) {
+      }
+    }
+
+    if (Object.keys(modulesFromScriptSources).length) {
+      return modulesFromScriptSources;
+    }
+
+    throw new Error("Failed to extract webpack modules from frame.");
   }
 
   async function collectPageResourcesFromHtml(html, url) {
@@ -817,7 +989,7 @@
     }
 
     const moduleBase = new URL(".", base).toString();
-    const modules = extractModulesFromFrame(frame);
+    const modules = await extractModulesFromFrame(frame);
     const spineResult = extractSpine(modules, moduleBase, frame.contentWindow);
     const staticResult = dedupeResources(
       extractStaticFiles(modules, moduleBase).concat(extractCapturedStaticFiles(spineResult.CAPTURED_RESOURCES))

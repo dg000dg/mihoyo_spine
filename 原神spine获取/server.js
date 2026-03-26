@@ -509,7 +509,7 @@ function findGroupImagePath(group, pageName, index) {
   }) || "";
 }
 
-function buildFlatArchiveEntries(group, sessionFiles, usedNames, usedGroupBases) {
+function buildFlatArchiveEntries(group, sessionFiles, usedNames, usedGroupBases, preferredGroupBaseName = "") {
   const atlasFile = sessionFiles.get(group.atlasPath);
   const jsonFile = sessionFiles.get(group.jsonPath);
   if (!atlasFile || !jsonFile) {
@@ -517,7 +517,7 @@ function buildFlatArchiveEntries(group, sessionFiles, usedNames, usedGroupBases)
   }
 
   const groupBaseName = reserveUniqueGroupBaseName(
-    group.fileName || splitFileName(filenameFromPath(group.atlasPath)).name || "spine",
+    preferredGroupBaseName || group.fileName || splitFileName(filenameFromPath(group.atlasPath)).name || "spine",
     usedGroupBases
   );
 
@@ -536,8 +536,11 @@ function buildFlatArchiveEntries(group, sessionFiles, usedNames, usedGroupBases)
 
     const flattenedPageName = flattenAtlasPageName(pageName);
     const parts = splitFileName(flattenedPageName);
+    const mergedImageBaseName = index === 0
+      ? groupBaseName
+      : `${groupBaseName}_${index + 1}`;
     const archiveImageName = reserveUniqueArchiveName(
-      `${parts.name || `image_${index + 1}`}${parts.extension || path.extname(pageName) || ".png"}`,
+      `${mergedImageBaseName || `${groupBaseName}_image_${index + 1}`}${parts.extension || path.extname(pageName) || ".png"}`,
       usedNames
     );
 
@@ -1302,6 +1305,9 @@ async function handleDownload(req, res) {
 
   const sessionId = String(payload.sessionId || "").trim();
   const requestedGroupIds = Array.isArray(payload.groupIds) ? payload.groupIds.map((item) => String(item)) : [];
+  const requestedGroupRenames = payload && typeof payload.groupRenames === "object" && payload.groupRenames
+    ? payload.groupRenames
+    : {};
   const session = sessionStore.get(sessionId);
 
   if (!session) {
@@ -1330,7 +1336,14 @@ async function handleDownload(req, res) {
   const usedGroupBaseNames = new Set();
 
   for (const group of selectedGroups) {
-    const archiveEntries = buildFlatArchiveEntries(group, session.files, usedArchiveNames, usedGroupBaseNames);
+    const preferredName = sanitizeArchiveBaseName(requestedGroupRenames[group.id] || "");
+    const archiveEntries = buildFlatArchiveEntries(
+      group,
+      session.files,
+      usedArchiveNames,
+      usedGroupBaseNames,
+      preferredName
+    );
 
     for (const entry of archiveEntries) {
       zipFile.addBuffer(entry.buffer, entry.archivePath);
