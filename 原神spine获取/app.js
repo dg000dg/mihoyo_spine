@@ -82,6 +82,7 @@
       }
     });
     document.addEventListener("keydown", handleGlobalKeydown);
+    document.addEventListener("pointerdown", handleGlobalPointerDown);
     dom.previewModal.addEventListener("click", handleModalClick);
 
     window.addEventListener("beforeunload", () => {
@@ -232,8 +233,57 @@
     document.body.classList.remove("is-resizing-activity-picker");
   }
 
+  function isEditableKeyboardTarget(target) {
+    if (!(target instanceof Element)) {
+      return false;
+    }
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+      return true;
+    }
+    return Boolean(target.closest("[contenteditable='true']"));
+  }
+
+  function closeCardDebugPopups(card) {
+    if (!card) {
+      return;
+    }
+    if (card.speedMenuPopup) {
+      card.speedMenuPopup.hidden = true;
+    }
+    if (card.debugMenuPopup) {
+      card.debugMenuPopup.hidden = true;
+    }
+  }
+
+  function handleGlobalPointerDown(event) {
+    if (!state.activeModalCardId) {
+      return;
+    }
+    const card = state.cards.get(state.activeModalCardId);
+    if (!card || !card.debugPanel || !(event.target instanceof Node)) {
+      return;
+    }
+    if (!card.debugPanel.contains(event.target)) {
+      closeCardDebugPopups(card);
+    }
+  }
+
   function handleGlobalKeydown(event) {
+    if (
+      state.activeModalCardId
+      && !isEditableKeyboardTarget(event.target)
+      && (event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "a" || event.key === "A" || event.key === "d" || event.key === "D")
+    ) {
+      const card = state.cards.get(state.activeModalCardId);
+      if (card) {
+        event.preventDefault();
+        stepCardBySingleFrame(card, event.key === "ArrowLeft" || event.key === "a" || event.key === "A" ? -1 : 1);
+        return;
+      }
+    }
+
     if (event.key === "Escape" && state.activeModalCardId) {
+      closeCardDebugPopups(state.cards.get(state.activeModalCardId));
       closePreviewModal();
       return;
     }
@@ -684,6 +734,19 @@
     return `${activityName}-${resourceName}.gif`;
   }
 
+  function buildSnapshotFileName(card, progress) {
+    const gifFileName = buildGifFileName(card);
+    const gifBaseName = String(gifFileName || "spine_export.gif").replace(/\.gif$/i, "");
+    const animationItem = getSelectedAnimationItem(card);
+    const durationSeconds = getAnimationDurationSeconds(animationItem && animationItem.animation);
+    const exportDurationMs = Math.max(100, Math.round(durationSeconds * 1000));
+    const frameDelayMs = Math.max(16, Math.round(1000 / GIF_CAPTURE_FPS));
+    const totalFrames = durationSeconds > 0 ? Math.max(2, 1 + Math.ceil(exportDurationMs / frameDelayMs)) : 1;
+    const frameIndex = Math.round(clampProgress(progress) * Math.max(0, totalFrames - 1));
+    const frameSerial = String(Math.max(0, frameIndex)).padStart(3, "0");
+    return `${gifBaseName}_${frameSerial}.png`;
+  }
+
   function clampProgress(value) {
     const progress = Number(value);
     if (!Number.isFinite(progress)) {
@@ -725,73 +788,101 @@
     card.frameScrubberValue.textContent = `${Math.round(safeProgress * 100)}%`;
   }
 
-  function seekCardToProgress(card, progress) {
-    if (!card || !card.player) {
+  function seekPlayerToAnimationProgress(player, animation, progress) {
+    if (!player || !animation) {
       return false;
     }
 
-    const animationItem = getSelectedAnimationItem(card);
-    if (!animationItem) {
-      return false;
-    }
-
-    const durationSeconds = getAnimationDurationSeconds(animationItem.animation);
+    const durationSeconds = getAnimationDurationSeconds(animation);
     if (durationSeconds <= 0) {
       return false;
     }
 
-    const animationName = getAnimationPlaybackName(animationItem.animation);
+    const animationName = getAnimationPlaybackName(animation);
     if (!animationName) {
       return false;
     }
 
     const safeProgress = clampProgress(progress);
-    const targetTime = durationSeconds * safeProgress;
+    const targetTime = safeProgress >= 1
+      ? Math.max(0, durationSeconds - 0.0001)
+      : durationSeconds * safeProgress;
 
-    if (!setAnimationViaState(card.player, animationName, true, { skipPlay: true })) {
-      return false;
-    }
-
-    const animationState = card.player.animationState;
-    const current = typeof animationState.getCurrent === "function"
-      ? animationState.getCurrent(0)
-      : animationState.tracks && animationState.tracks[0];
-    if (!current) {
+    const animationState = player.animationState;
+    if (!animationState) {
       return false;
     }
 
     try {
-      current.trackTime = targetTime;
+      if (typeof animationState.clearTracks === "function") {
+        animationState.clearTracks();
+      }
+      if (!setAnimationViaState(player, animationName, true, { skipPlay: true })) {
+        return false;
+      }
+      const current = typeof animationState.getCurrent === "function"
+        ? animationState.getCurrent(0)
+        : animationState.tracks && animationState.tracks[0];
+      if (!current) {
+        return false;
+      }
+
+      if (typeof current.mixDuration === "number") {
+        current.mixDuration = 0;
+      }
+      if (typeof current.mixTime === "number") {
+        current.mixTime = 0;
+      }
+      if (typeof current.alpha === "number") {
+        current.alpha = 1;
+      }
+      if (typeof current.trackTime === "number") {
+        current.trackTime = 0;
+      }
       if (typeof current.animationLast === "number") {
-        current.animationLast = targetTime;
+        current.animationLast = 0;
       }
       if (typeof current.trackLast === "number") {
-        current.trackLast = targetTime;
-      }
-      if (typeof current.nextAnimationLast === "number") {
-        current.nextAnimationLast = targetTime;
+        current.trackLast = 0;
       }
 
+      if (typeof animationState.update === "function") {
+        animationState.update(targetTime);
+      }
       if (typeof animationState.apply === "function") {
-        animationState.apply(card.player.skeleton);
+        animationState.apply(player.skeleton);
       }
 
-      const runtime = getPlayerRuntime(card.player);
+      const runtime = getPlayerRuntime(player);
       const physicsMode = runtime && runtime.Physics && typeof runtime.Physics.update === "number"
         ? runtime.Physics.update
         : undefined;
-      if (card.player.skeleton && typeof card.player.skeleton.updateWorldTransform === "function") {
-        card.player.skeleton.updateWorldTransform(physicsMode);
+      if (player.skeleton && typeof player.skeleton.updateWorldTransform === "function") {
+        player.skeleton.updateWorldTransform(physicsMode);
       }
-      if (typeof card.player.drawFrame === "function") {
-        card.player.drawFrame(false);
+      if (typeof player.drawFrame === "function") {
+        player.drawFrame(false);
       }
-
-      setCardFrameScrubberValue(card, safeProgress);
       return true;
     } catch (_error) {
       return false;
     }
+  }
+
+  function seekCardToProgress(card, progress) {
+    if (!card || !card.player) {
+      return false;
+    }
+    const animationItem = getSelectedAnimationItem(card);
+    if (!animationItem || !animationItem.animation) {
+      return false;
+    }
+    const safeProgress = clampProgress(progress);
+    const ok = seekPlayerToAnimationProgress(card.player, animationItem.animation, safeProgress);
+    if (ok) {
+      setCardFrameScrubberValue(card, safeProgress);
+    }
+    return ok;
   }
 
   function enableManualFrameControl(card) {
@@ -820,6 +911,141 @@
       } catch (_error) {
       }
     }
+  }
+
+  function applyCardPlaybackSpeed(card) {
+    if (!card || !card.player) {
+      return;
+    }
+    const speed = Number(card.playbackSpeed);
+    const safeSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
+    if (card.player.animationState && typeof card.player.animationState.timeScale === "number") {
+      card.player.animationState.timeScale = safeSpeed;
+    }
+    if (typeof card.player.timeScale === "number") {
+      card.player.timeScale = safeSpeed;
+    }
+  }
+
+  function applyCardDebugRender(card) {
+    if (!card || !card.player) {
+      return;
+    }
+    const bonesEnabled = Boolean(card.debugBonesEnabled);
+    const pathsEnabled = Boolean(card.debugPathsEnabled);
+    const meshesEnabled = Boolean(card.debugMeshesEnabled);
+    const enabled = bonesEnabled || pathsEnabled || meshesEnabled;
+    if (typeof card.player.debugRender === "boolean") {
+      card.player.debugRender = enabled;
+    }
+    if (card.player.debug && typeof card.player.debug === "object") {
+      if ("bones" in card.player.debug) {
+        card.player.debug.bones = bonesEnabled;
+      }
+      if ("paths" in card.player.debug) {
+        card.player.debug.paths = pathsEnabled;
+      }
+      if ("meshes" in card.player.debug) {
+        card.player.debug.meshes = meshesEnabled;
+      }
+    }
+  }
+
+  function drawCardDebugTrail(card) {
+    if (!card || !card.debugTrailCanvas) {
+      return;
+    }
+
+    const show = Boolean(card.isModalOpen && card.debugTrailEnabled);
+    card.debugTrailCanvas.hidden = !show;
+    if (!show) {
+      card.debugTrailPoints = [];
+      return;
+    }
+
+    const canvas = card.mount && card.mount.querySelector ? card.mount.querySelector("canvas") : null;
+    const bounds = readPlayerBounds(card.player);
+    if (!canvas || !bounds) {
+      return;
+    }
+
+    const width = Math.max(1, Math.round(canvas.clientWidth || canvas.width || 0));
+    const height = Math.max(1, Math.round(canvas.clientHeight || canvas.height || 0));
+    if (card.debugTrailCanvas.width !== width || card.debugTrailCanvas.height !== height) {
+      card.debugTrailCanvas.width = width;
+      card.debugTrailCanvas.height = height;
+    }
+
+    const center = {
+      x: Number(bounds.x) + Number(bounds.width) / 2,
+      y: Number(bounds.y) + Number(bounds.height) / 2
+    };
+    if (Number.isFinite(center.x) && Number.isFinite(center.y)) {
+      card.debugTrailPoints.push(center);
+      if (card.debugTrailPoints.length > 120) {
+        card.debugTrailPoints.shift();
+      }
+    }
+
+    const points = card.debugTrailPoints;
+    const ctx = card.debugTrailCanvas.getContext("2d");
+    if (!ctx || points.length < 2) {
+      return;
+    }
+
+    let minX = points[0].x;
+    let maxX = points[0].x;
+    let minY = points[0].y;
+    let maxY = points[0].y;
+    for (const point of points) {
+      if (point.x < minX) minX = point.x;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.y > maxY) maxY = point.y;
+    }
+    const spanX = Math.max(1e-6, maxX - minX);
+    const spanY = Math.max(1e-6, maxY - minY);
+    const pad = 20;
+    const drawW = Math.max(1, width - pad * 2);
+    const drawH = Math.max(1, height - pad * 2);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255, 106, 106, 0.9)";
+    ctx.beginPath();
+    points.forEach((point, index) => {
+      const x = pad + ((point.x - minX) / spanX) * drawW;
+      const y = pad + ((point.y - minY) / spanY) * drawH;
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+  }
+
+  function getFrameStepProgress(card) {
+    const animationItem = getSelectedAnimationItem(card);
+    const durationSeconds = getAnimationDurationSeconds(animationItem && animationItem.animation);
+    if (durationSeconds <= 0) {
+      return 1 / 1000;
+    }
+    return Math.max(1 / 1000, 1 / Math.max(1, Math.round(durationSeconds * 60)));
+  }
+
+  function stepCardBySingleFrame(card, direction) {
+    if (!card) {
+      return;
+    }
+    enableManualFrameControl(card);
+    const current = card.frameScrubber ? Number(card.frameScrubber.value || 0) / 1000 : getCardPlaybackProgress(card);
+    const step = getFrameStepProgress(card);
+    const next = clampProgress(current + (direction < 0 ? -step : step));
+    if (!seekCardToProgress(card, next)) {
+      setCardFrameScrubberValue(card, next);
+    }
+    refreshCardFrameScrubber(card);
   }
 
   function getCardPlaybackProgress(card) {
@@ -854,7 +1080,15 @@
   }
 
   function refreshCardFrameScrubber(card) {
-    if (!card || !card.frameScrubber || !card.frameScrubberValue || !card.frameScrubberPlayButton) {
+    if (
+      !card
+      || !card.frameScrubber
+      || !card.frameScrubberValue
+      || !card.frameScrubberPlayButton
+      || !card.frameScrubberPauseButton
+      || !card.frameStepPrevButton
+      || !card.frameStepNextButton
+    ) {
       return;
     }
 
@@ -868,13 +1102,20 @@
 
     card.frameScrubber.disabled = !available;
     card.frameScrubberPlayButton.disabled = !available;
+    card.frameScrubberPauseButton.disabled = !available;
+    card.frameStepPrevButton.disabled = !available;
+    card.frameStepNextButton.disabled = !available;
     card.frameScrubberPlayButton.classList.toggle("is-active", Boolean(available && card.isManualFrameControl));
+    card.frameScrubberPauseButton.classList.toggle("is-active", Boolean(available && card.isManualFrameControl));
     card.frameScrubber.title = available
       ? "拖动以定位当前动画帧"
       : (card.isModalOpen ? "当前运行时不支持拖动定位" : "仅全屏预览时可用");
     card.frameScrubberPlayButton.title = available
       ? (card.isManualFrameControl ? "恢复自动播放" : "当前为自动播放")
       : "当前不可播放";
+    card.frameScrubberPauseButton.title = available ? "暂停当前动画播放" : "当前不可暂停";
+    card.frameStepPrevButton.title = available ? "上一帧" : "当前不可逐帧";
+    card.frameStepNextButton.title = available ? "下一帧" : "当前不可逐帧";
     card.frameScrubberWrap.hidden = !available;
 
     if (!available) {
@@ -893,6 +1134,9 @@
     state.frameSyncRafId = window.requestAnimationFrame(stepFrameSyncLoop);
 
     for (const card of state.cards.values()) {
+      if (card && card.isModalOpen) {
+        drawCardDebugTrail(card);
+      }
       if (!card || card.isScrubbing || card.isManualFrameControl || !card.player || !card.frameScrubberWrap || card.frameScrubberWrap.hidden) {
         continue;
       }
@@ -1048,6 +1292,11 @@
       return;
     }
 
+    if (card.isExportingImage) {
+      setStatus("当前正在导出图片，请稍后再导出 GIF。", "loading");
+      return;
+    }
+
     const activeExportCard = findActiveGifExport(card);
     if (activeExportCard) {
       setStatus(`正在导出 ${activeExportCard.group.fileName}，请稍候。`, "loading");
@@ -1168,6 +1417,92 @@
     } finally {
       disposeStandalonePlayer(exportPlayer, exportMount);
       card.isExportingGif = false;
+      syncFullscreenButtons();
+    }
+  }
+
+  async function handleExportImageClick(card) {
+    if (!card || card.isExportingImage) {
+      return;
+    }
+
+    if (card.isExportingGif) {
+      setStatus("当前正在导出 GIF，请稍后再导出图片。", "loading");
+      return;
+    }
+
+    if (!card.player) {
+      setStatus("当前动画尚未完成加载。", "error");
+      return;
+    }
+
+    let canvas = card.mount && card.mount.querySelector ? card.mount.querySelector("canvas") : null;
+    if (!canvas || !canvas.width || !canvas.height) {
+      setStatus("当前画面未就绪，无法导出图片。", "error");
+      return;
+    }
+
+    const wasManualFrameControl = Boolean(card.isManualFrameControl);
+    card.isExportingImage = true;
+    syncFullscreenButtons();
+    let exportMount = null;
+    let exportPlayer = null;
+
+    try {
+      const progress = card.frameScrubber
+        ? Number(card.frameScrubber.value || 0) / 1000
+        : getCardPlaybackProgress(card);
+      if (!wasManualFrameControl) {
+        enableManualFrameControl(card);
+      }
+      seekCardToProgress(card, progress);
+      const exportSize = resolveGifExportSize(card);
+      exportMount = createHiddenExportMount(exportSize.width, exportSize.height);
+      exportPlayer = await createExportPlayerForCard(card, exportMount);
+      canvas = exportMount.querySelector("canvas");
+      if (!canvas || !canvas.width || !canvas.height) {
+        throw new Error("导出画布不可用。");
+      }
+
+      const animationItem = card.animations.find((item) => item.index === card.selectedAnimationIndex) || card.animations[0];
+      if (!animationItem || !animationItem.animation) {
+        throw new Error("当前资源没有可导出的动画。");
+      }
+      if (card.selectedSkinName) {
+        applySkinByName(exportPlayer, card.selectedSkinName);
+      }
+      setAnimationOnPlayer(exportPlayer, animationItem.animation, animationItem.index);
+      if (!seekPlayerToAnimationProgress(exportPlayer, animationItem.animation, progress)) {
+        throw new Error("导出定位失败。");
+      }
+      await waitForAnimationFrame();
+
+      const blob = await new Promise((resolve) => {
+        try {
+          canvas.toBlob((result) => resolve(result || null), "image/png");
+        } catch (_error) {
+          resolve(null);
+        }
+      });
+
+      if (!blob) {
+        setStatus("图片导出失败：无法读取当前画面。", "error");
+        return;
+      }
+
+      const fileName = buildSnapshotFileName(card, progress);
+      downloadBlob(blob, fileName);
+      setStatus(`已导出当前帧图片：${fileName}`, "success");
+    } catch (error) {
+      console.error(error);
+      setStatus("图片导出失败: " + getErrorMessage(error), "error");
+    } finally {
+      disposeStandalonePlayer(exportPlayer, exportMount);
+      if (!wasManualFrameControl) {
+        resumeAutomaticFrameControl(card);
+      }
+      card.isExportingImage = false;
+      refreshCardFrameScrubber(card);
       syncFullscreenButtons();
     }
   }
@@ -1748,6 +2083,21 @@
 
     const frameScrubberPlayButton = document.createElement("button");
     frameScrubberPlayButton.type = "button";
+    const frameScrubberPauseButton = document.createElement("button");
+    frameScrubberPauseButton.type = "button";
+    const frameStepPrevButton = document.createElement("button");
+    frameStepPrevButton.type = "button";
+    frameStepPrevButton.className = "frame-scrubber__play-button frame-scrubber__step-button";
+    frameStepPrevButton.textContent = "<";
+    frameStepPrevButton.title = "上一帧";
+    const frameStepNextButton = document.createElement("button");
+    frameStepNextButton.type = "button";
+    frameStepNextButton.className = "frame-scrubber__play-button frame-scrubber__step-button";
+    frameStepNextButton.textContent = ">";
+    frameStepNextButton.title = "下一帧";
+    frameScrubberPauseButton.className = "frame-scrubber__play-button frame-scrubber__pause-button";
+    frameScrubberPauseButton.textContent = "暂停";
+    frameScrubberPauseButton.title = "暂停当前动画播放";
     frameScrubberPlayButton.className = "frame-scrubber__play-button";
     frameScrubberPlayButton.textContent = "播放";
     frameScrubberPlayButton.title = "恢复自动播放";
@@ -1755,11 +2105,24 @@
     frameScrubberWrap.appendChild(frameScrubber);
     frameScrubberWrap.appendChild(frameScrubberValue);
     frameScrubberWrap.appendChild(frameScrubberPlayButton);
+    frameScrubberWrap.appendChild(frameScrubberPauseButton);
+    frameScrubberWrap.appendChild(frameStepPrevButton);
+    frameScrubberWrap.appendChild(frameStepNextButton);
 
     const animationSelect = document.createElement("select");
     animationSelect.className = "mini-select animation-select";
     animationSelect.title = "切换动画";
     animationSelect.hidden = true;
+
+    const exportImageButton = document.createElement("button");
+    exportImageButton.type = "button";
+    exportImageButton.className = "icon-button export-image-button";
+    exportImageButton.textContent = "导出图片";
+    exportImageButton.title = "导出当前进度对应画面";
+    exportImageButton.hidden = true;
+    exportImageButton.addEventListener("click", () => {
+      handleExportImageClick(card);
+    });
 
     const exportGifButton = document.createElement("button");
     exportGifButton.type = "button";
@@ -1815,13 +2178,134 @@
     overlay.className = "card-overlay";
     overlay.textContent = IDLE_CARD_MESSAGE;
 
+    const debugPanel = document.createElement("div");
+    debugPanel.className = "fullscreen-debug-controls";
+    debugPanel.hidden = true;
+
+    const speedLabel = document.createElement("label");
+    speedLabel.className = "fullscreen-debug-controls__item";
+    speedLabel.textContent = "";
+    speedLabel.textContent = "速度";
+    const speedSelect = document.createElement("select");
+    speedSelect.className = "mini-select fullscreen-debug-controls__speed";
+    [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].forEach((value) => {
+      const option = document.createElement("option");
+      option.value = String(value);
+      option.textContent = `${value}x`;
+      speedSelect.appendChild(option);
+    });
+    speedSelect.value = "1";
+    speedLabel.appendChild(speedSelect);
+
+    const trailLabel = document.createElement("label");
+    trailLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const trailToggle = document.createElement("input");
+    trailToggle.type = "checkbox";
+    trailLabel.appendChild(trailToggle);
+    trailLabel.appendChild(document.createTextNode("轨迹"));
+
+    const bonesLabel = document.createElement("label");
+    bonesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const bonesToggle = document.createElement("input");
+    bonesToggle.type = "checkbox";
+    bonesLabel.appendChild(bonesToggle);
+    bonesLabel.appendChild(document.createTextNode("骨骼"));
+
+    const pathsLabel = document.createElement("label");
+    pathsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const pathsToggle = document.createElement("input");
+    pathsToggle.type = "checkbox";
+    pathsLabel.appendChild(pathsToggle);
+    pathsLabel.appendChild(document.createTextNode("路径"));
+
+    const meshesLabel = document.createElement("label");
+    meshesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const meshesToggle = document.createElement("input");
+    meshesToggle.type = "checkbox";
+    meshesLabel.appendChild(meshesToggle);
+    const normalizeToggleLabelAscii = (label, icon, title) => {
+      while (label.childNodes.length > 1) {
+        label.removeChild(label.lastChild);
+      }
+      label.appendChild(document.createTextNode(icon));
+      label.title = title;
+    };
+    normalizeToggleLabelAscii(trailLabel, String.fromCodePoint(0x223F), "运动轨迹");
+    normalizeToggleLabelAscii(bonesLabel, String.fromCodePoint(0x1F9B4), "骨骼");
+    normalizeToggleLabelAscii(pathsLabel, String.fromCodePoint(0x1F9ED), "路径");
+    normalizeToggleLabelAscii(meshesLabel, String.fromCodePoint(0x25A6), "网格");
+    const normalizeToggleLabel = (label, icon, title) => {
+      while (label.childNodes.length > 1) {
+        label.removeChild(label.lastChild);
+      }
+      label.appendChild(document.createTextNode(icon));
+      label.title = title;
+    };
+    normalizeToggleLabel(trailLabel, "〰", "运动轨迹");
+    normalizeToggleLabel(bonesLabel, "🦴", "骨骼");
+    normalizeToggleLabel(pathsLabel, "🧭", "路径");
+    normalizeToggleLabel(meshesLabel, "▦", "网格");
+
+    const speedMenu = document.createElement("div");
+    speedMenu.className = "fullscreen-debug-menu";
+    const speedMenuButton = document.createElement("button");
+    speedMenuButton.type = "button";
+    speedMenuButton.className = "fullscreen-debug-mini-button";
+    speedMenuButton.textContent = "⚡";
+    speedMenuButton.title = "设置播放速度";
+    const speedMenuPopup = document.createElement("div");
+    speedMenuPopup.className = "fullscreen-debug-popup fullscreen-debug-popup--speed";
+    speedMenuPopup.hidden = true;
+    speedMenuPopup.appendChild(speedLabel);
+    speedMenu.appendChild(speedMenuButton);
+    speedMenu.appendChild(speedMenuPopup);
+    speedMenuButton.textContent = String.fromCodePoint(0x26A1);
+    speedMenuButton.title = "速度";
+
+    const debugMenu = document.createElement("div");
+    debugMenu.className = "fullscreen-debug-menu";
+    const debugMenuButton = document.createElement("button");
+    debugMenuButton.type = "button";
+    debugMenuButton.className = "fullscreen-debug-mini-button";
+    debugMenuButton.textContent = "🛠";
+    debugMenuButton.title = "调试开关";
+    const debugMenuPopup = document.createElement("div");
+    debugMenuPopup.className = "fullscreen-debug-popup fullscreen-debug-popup--debug";
+    debugMenuPopup.hidden = true;
+    debugMenuPopup.appendChild(trailLabel);
+    debugMenuPopup.appendChild(bonesLabel);
+    debugMenuPopup.appendChild(pathsLabel);
+    debugMenuPopup.appendChild(meshesLabel);
+    debugMenuButton.textContent = String.fromCodePoint(0x1F6E0);
+    debugMenuButton.title = "Debug";
+    while (speedLabel.childNodes.length > 0) {
+      speedLabel.removeChild(speedLabel.firstChild);
+    }
+    speedLabel.appendChild(speedSelect);
+    speedMenuButton.textContent = "⚡";
+    speedMenuButton.title = "设置播放速度";
+    debugMenuButton.textContent = "🛠";
+    debugMenuButton.title = "调试开关";
+    debugMenu.appendChild(debugMenuButton);
+    debugMenu.appendChild(debugMenuPopup);
+
+    debugPanel.appendChild(speedMenu);
+    debugPanel.appendChild(debugMenu);
+
+    const debugTrailCanvas = document.createElement("canvas");
+    debugTrailCanvas.className = "fullscreen-debug-trail";
+    debugTrailCanvas.hidden = true;
+
     preview.appendChild(mount);
     preview.appendChild(overlay);
+    preview.appendChild(debugTrailCanvas);
+    preview.appendChild(debugPanel);
     toolbar.appendChild(checkbox);
     toolbar.appendChild(name);
     toolbar.appendChild(renameInput);
     toolbar.appendChild(frameScrubberWrap);
     toolbar.appendChild(animationSelect);
+    toolbar.appendChild(exportImageButton);
     toolbar.appendChild(exportGifButton);
     toolbar.appendChild(exportProgress);
     toolbar.appendChild(skinSelect);
@@ -1856,8 +2340,12 @@
       frameScrubber,
       frameScrubberValue,
       frameScrubberPlayButton,
+      frameScrubberPauseButton,
+      frameStepPrevButton,
+      frameStepNextButton,
       checkbox,
       animationSelect,
+      exportImageButton,
       exportGifButton,
       exportProgress,
       exportProgressFill,
@@ -1866,6 +2354,17 @@
       fullscreenButton,
       mount,
       overlay,
+      debugPanel,
+      speedMenuButton,
+      speedMenuPopup,
+      speedSelect,
+      debugMenuButton,
+      debugMenuPopup,
+      trailToggle,
+      bonesToggle,
+      pathsToggle,
+      meshesToggle,
+      debugTrailCanvas,
       player: null,
       animations: [],
       skins: [],
@@ -1881,6 +2380,7 @@
       lastHoverAt: 0,
       lastRequestedAt: 0,
       lastLoadedAt: 0,
+      isExportingImage: false,
       isExportingGif: false,
       exportProgressAmount: 0,
       isModalOpen: false,
@@ -1889,7 +2389,21 @@
       originalNextSibling: null,
       isRenaming: false,
       isScrubbing: false,
-      isManualFrameControl: false
+      isManualFrameControl: false,
+      playbackSpeed: 1,
+      debugTrailEnabled: false,
+      debugBonesEnabled: false,
+      debugPathsEnabled: false,
+      debugMeshesEnabled: false,
+      debugTrailPoints: []
+    };
+    const syncSpeedButtonUi = (options) => {
+      const shouldClosePopup = Boolean(options && options.closePopup);
+      speedMenuButton.textContent = String.fromCodePoint(0x26A1);
+      speedMenuButton.title = `Speed ${card.playbackSpeed}x`;
+      if (shouldClosePopup && card.speedMenuPopup) {
+        card.speedMenuPopup.hidden = true;
+      }
     };
 
     name.addEventListener("dblclick", () => {
@@ -1940,6 +2454,56 @@
       resumeAutomaticFrameControl(card);
       refreshCardFrameScrubber(card);
     });
+    frameScrubberPauseButton.addEventListener("click", () => {
+      enableManualFrameControl(card);
+      refreshCardFrameScrubber(card);
+    });
+    frameStepPrevButton.addEventListener("click", () => {
+      stepCardBySingleFrame(card, -1);
+    });
+    frameStepNextButton.addEventListener("click", () => {
+      stepCardBySingleFrame(card, 1);
+    });
+    speedMenuButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const nextHidden = !speedMenuPopup.hidden;
+      speedMenuPopup.hidden = nextHidden;
+      debugMenuPopup.hidden = true;
+    });
+    debugMenuButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const nextHidden = !debugMenuPopup.hidden;
+      debugMenuPopup.hidden = nextHidden;
+      speedMenuPopup.hidden = true;
+    });
+    speedSelect.addEventListener("change", () => {
+      const speed = Number(speedSelect.value);
+      card.playbackSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
+      applyCardPlaybackSpeed(card);
+      syncSpeedButtonUi({ closePopup: true });
+    });
+    trailToggle.addEventListener("change", () => {
+      card.debugTrailEnabled = Boolean(trailToggle.checked);
+      if (!card.debugTrailEnabled) {
+        card.debugTrailPoints = [];
+      }
+      drawCardDebugTrail(card);
+    });
+    bonesToggle.addEventListener("change", () => {
+      card.debugBonesEnabled = Boolean(bonesToggle.checked);
+      applyCardDebugRender(card);
+    });
+    pathsToggle.addEventListener("change", () => {
+      card.debugPathsEnabled = Boolean(pathsToggle.checked);
+      applyCardDebugRender(card);
+    });
+    meshesToggle.addEventListener("change", () => {
+      card.debugMeshesEnabled = Boolean(meshesToggle.checked);
+      applyCardDebugRender(card);
+    });
+    syncSpeedButtonUi({ closePopup: true });
     updateCardNameDisplay(card);
     refreshCardFrameScrubber(card);
 
@@ -1952,6 +2516,11 @@
       const otherExportActive = Boolean(findActiveGifExport(card));
       card.fullscreenButton.textContent = isActiveModal ? "退出全屏" : "全屏";
       card.fullscreenButton.title = isActiveModal ? "退出浮窗预览" : "打开浮窗预览";
+      card.debugPanel.hidden = !isActiveModal;
+      if (!isActiveModal) {
+        closeCardDebugPopups(card);
+      }
+      card.exportImageButton.hidden = !isActiveModal;
       card.exportGifButton.hidden = !isActiveModal;
       card.exportProgress.hidden = !isActiveModal || !card.isExportingGif;
       updateCardExportProgress(card, card.exportProgressAmount || 0);
@@ -1961,8 +2530,13 @@
           card.frameScrubber.disabled = true;
         }
       }
-      card.exportGifButton.disabled = !isActiveModal || card.isExportingGif || !card.animations.length || otherExportActive;
+      card.exportImageButton.disabled = !isActiveModal || card.isExportingGif || card.isExportingImage || !card.player;
+      card.exportGifButton.disabled = !isActiveModal || card.isExportingGif || card.isExportingImage || !card.animations.length || otherExportActive;
       refreshCardFrameScrubber(card);
+      card.exportImageButton.textContent = card.isExportingImage ? "导出中..." : "导出图片";
+      card.exportImageButton.title = card.isExportingImage
+        ? "正在导出当前帧图片"
+        : "导出当前进度对应画面";
       card.exportGifButton.textContent = card.isExportingGif ? "导出中..." : "导出GIF";
       card.exportGifButton.title = card.isExportingGif
         ? "正在导出 GIF"
@@ -2058,6 +2632,10 @@
     dom.previewModal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     card.isVisible = false;
+    card.debugTrailPoints = [];
+    if (card.debugTrailCanvas) {
+      card.debugTrailCanvas.hidden = true;
+    }
     refreshCardFrameScrubber(card);
     syncFullscreenButtons();
   }
@@ -2257,6 +2835,9 @@
     card.lastLoadedAt = Date.now();
     attachCanvasRecovery(card, player, renderToken);
     hydrateCardControls(card);
+    applyCardPlaybackSpeed(card);
+    applyCardDebugRender(card);
+    drawCardDebugTrail(card);
     setCardOverlay(card, "", "success", true);
   }
 

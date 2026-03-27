@@ -11,125 +11,125 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.2.73/dist/spine-player.min.css">
   <style>
     :root {
-      --bg-0: #09131b;
-      --bg-1: #102538;
-      --bg-2: #081017;
-      --panel: color-mix(in srgb, var(--bg-0) 90%, #ffffff 10%);
-      --panel-strong: color-mix(in srgb, var(--bg-1) 84%, #ffffff 16%);
-      --line: rgba(114, 197, 255, 0.2);
-      --line-strong: rgba(114, 197, 255, 0.34);
-      --text-0: #eef6ff;
-      --text-1: #a3bbcf;
-      --accent: #7fd1ff;
-      --accent-strong: #4cb5f5;
-      --glow-a: rgba(89, 173, 255, 0.16);
-      --glow-b: rgba(117, 237, 255, 0.12);
-      --surface-0: color-mix(in srgb, var(--bg-0) 92%, #ffffff 8%);
-      --surface-1: color-mix(in srgb, var(--bg-1) 86%, #ffffff 14%);
-      --surface-2: color-mix(in srgb, var(--bg-1) 90%, #ffffff 10%);
-      --surface-soft: color-mix(in srgb, var(--bg-0) 88%, #ffffff 12%);
-      --surface-muted: color-mix(in srgb, var(--bg-0) 82%, #ffffff 18%);
-      --overlay-bg: color-mix(in srgb, var(--bg-0) 55%, rgba(0, 0, 0, 0.42));
-      --danger: #ff8c7a;
-      --success: #8de2b7;
-      --shadow: 0 22px 56px rgba(0, 0, 0, 0.32);
-      color-scheme: dark;
+      --bg-0: #eaf7ff;
+      --bg-1: #9fd4b1;
+      --bg-2: #78b8d9;
+      --panel: #ffffff;
+      --panel-strong: #ffffff;
+      --line: rgba(120, 184, 217, 0.35);
+      --line-strong: rgba(120, 184, 217, 0.56);
+      --text-0: #172437;
+      --text-1: #4e5f74;
+      --accent: #78b8d9;
+      --accent-strong: #e9d08a;
+      --glow-a: rgba(120, 184, 217, 0.2);
+      --glow-b: rgba(159, 212, 177, 0.18);
+      --surface-0: #ffffff;
+      --surface-1: #f6fbff;
+      --surface-2: #f2f8ff;
+      --surface-soft: #eef6ff;
+      --surface-muted: #e9f2fb;
+      --overlay-bg: rgba(246, 251, 255, 0.82);
+      --danger: #dd6b64;
+      --success: #4f9966;
+      --shadow: 0 18px 40px rgba(41, 65, 98, 0.16);
+      color-scheme: light;
     }
 
     :root[data-theme="mondstadt"] {
-      --bg-0: #1c3645;
-      --bg-1: #2f6078;
-      --bg-2: #152a35;
-      --accent: #87ceeb;
-      --accent-strong: #ffd700;
-      --line: rgba(135, 206, 235, 0.24);
-      --line-strong: rgba(255, 215, 0, 0.44);
-      --glow-a: rgba(135, 206, 235, 0.22);
-      --glow-b: rgba(34, 139, 34, 0.16);
+      --bg-0: #eaf7ff;
+      --bg-1: #9fd4b1;
+      --bg-2: #78b8d9;
+      --accent: #78b8d9;
+      --accent-strong: #e9d08a;
+      --line: rgba(120, 184, 217, 0.35);
+      --line-strong: rgba(120, 184, 217, 0.56);
+      --glow-a: rgba(120, 184, 217, 0.2);
+      --glow-b: rgba(159, 212, 177, 0.18);
     }
 
     :root[data-theme="liyue"] {
-      --bg-0: #2f2118;
-      --bg-1: #5b3b28;
-      --bg-2: #231910;
-      --accent: #8b4513;
-      --accent-strong: #ffd700;
-      --line: rgba(139, 69, 19, 0.26);
-      --line-strong: rgba(255, 215, 0, 0.42);
-      --glow-a: rgba(65, 105, 225, 0.2);
-      --glow-b: rgba(0, 206, 209, 0.14);
+      --bg-0: #f8f1e5;
+      --bg-1: #5d7c66;
+      --bg-2: #c8953c;
+      --accent: #c8953c;
+      --accent-strong: #d4b77e;
+      --line: rgba(200, 149, 60, 0.34);
+      --line-strong: rgba(200, 149, 60, 0.56);
+      --glow-a: rgba(200, 149, 60, 0.2);
+      --glow-b: rgba(93, 124, 102, 0.16);
     }
 
     :root[data-theme="inazuma"] {
-      --bg-0: #221b34;
-      --bg-1: #4a3a70;
-      --bg-2: #181427;
-      --accent: #6a5acd;
-      --accent-strong: #dc143c;
-      --line: rgba(106, 90, 205, 0.24);
-      --line-strong: rgba(220, 20, 60, 0.4);
-      --glow-a: rgba(106, 90, 205, 0.22);
-      --glow-b: rgba(220, 20, 60, 0.14);
+      --bg-0: #ece9fa;
+      --bg-1: #3b4e78;
+      --bg-2: #6e63b9;
+      --accent: #6e63b9;
+      --accent-strong: #e7a9d4;
+      --line: rgba(110, 99, 185, 0.34);
+      --line-strong: rgba(110, 99, 185, 0.56);
+      --glow-a: rgba(110, 99, 185, 0.2);
+      --glow-b: rgba(59, 78, 120, 0.16);
     }
 
     :root[data-theme="sumeru"] {
-      --bg-0: #1a3123;
-      --bg-1: #3f6448;
-      --bg-2: #14251b;
-      --accent: #2e8b57;
-      --accent-strong: #8a2be2;
-      --line: rgba(46, 139, 87, 0.24);
-      --line-strong: rgba(138, 43, 226, 0.34);
-      --glow-a: rgba(46, 139, 87, 0.22);
-      --glow-b: rgba(210, 180, 140, 0.16);
+      --bg-0: #eef7e8;
+      --bg-1: #a7be64;
+      --bg-2: #4f9966;
+      --accent: #4f9966;
+      --accent-strong: #cda760;
+      --line: rgba(79, 153, 102, 0.34);
+      --line-strong: rgba(79, 153, 102, 0.54);
+      --glow-a: rgba(79, 153, 102, 0.2);
+      --glow-b: rgba(167, 190, 100, 0.18);
     }
 
     :root[data-theme="fontaine"] {
-      --bg-0: #132e42;
-      --bg-1: #366991;
-      --bg-2: #0f2331;
-      --accent: #1e90ff;
-      --accent-strong: #ff69b4;
-      --line: rgba(30, 144, 255, 0.24);
-      --line-strong: rgba(255, 105, 180, 0.34);
-      --glow-a: rgba(30, 144, 255, 0.22);
-      --glow-b: rgba(192, 192, 192, 0.16);
+      --bg-0: #eaf6ff;
+      --bg-1: #7dcfe6;
+      --bg-2: #4ca5d9;
+      --accent: #4ca5d9;
+      --accent-strong: #c4d6e5;
+      --line: rgba(76, 165, 217, 0.34);
+      --line-strong: rgba(76, 165, 217, 0.54);
+      --glow-a: rgba(76, 165, 217, 0.2);
+      --glow-b: rgba(125, 207, 230, 0.18);
     }
 
     :root[data-theme="natlan"] {
-      --bg-0: #341810;
-      --bg-1: #7d3925;
-      --bg-2: #26120b;
-      --accent: #ff4500;
-      --accent-strong: #ffff00;
-      --line: rgba(255, 69, 0, 0.26);
-      --line-strong: rgba(255, 255, 0, 0.36);
-      --glow-a: rgba(255, 69, 0, 0.24);
-      --glow-b: rgba(139, 69, 19, 0.16);
+      --bg-0: #fff1e6;
+      --bg-1: #a33d21;
+      --bg-2: #e4682c;
+      --accent: #e4682c;
+      --accent-strong: #f0b248;
+      --line: rgba(228, 104, 44, 0.36);
+      --line-strong: rgba(228, 104, 44, 0.58);
+      --glow-a: rgba(228, 104, 44, 0.22);
+      --glow-b: rgba(163, 61, 33, 0.18);
     }
 
     :root[data-theme="snezhnaya"] {
-      --bg-0: #1a2a3c;
-      --bg-1: #3b5578;
-      --bg-2: #132031;
-      --accent: #b0e0e6;
-      --accent-strong: #ff0000;
-      --line: rgba(176, 224, 230, 0.24);
-      --line-strong: rgba(255, 255, 255, 0.4);
-      --glow-a: rgba(176, 224, 230, 0.22);
-      --glow-b: rgba(255, 0, 0, 0.12);
+      --bg-0: #eef4fa;
+      --bg-1: #5c738e;
+      --bg-2: #8cb7d9;
+      --accent: #8cb7d9;
+      --accent-strong: #d96e6e;
+      --line: rgba(140, 183, 217, 0.34);
+      --line-strong: rgba(140, 183, 217, 0.56);
+      --glow-a: rgba(140, 183, 217, 0.2);
+      --glow-b: rgba(92, 115, 142, 0.16);
     }
 
     :root[data-theme="moon"] {
-      --bg-0: #232844;
-      --bg-1: #575489;
-      --bg-2: #1b2037;
-      --accent: #e6e6fa;
-      --accent-strong: #ffd700;
-      --line: rgba(230, 230, 250, 0.24);
-      --line-strong: rgba(255, 215, 0, 0.4);
-      --glow-a: rgba(230, 230, 250, 0.22);
-      --glow-b: rgba(72, 61, 139, 0.18);
+      --bg-0: #eef1fa;
+      --bg-1: #55789b;
+      --bg-2: #7f9ccf;
+      --accent: #7f9ccf;
+      --accent-strong: #c9bedf;
+      --line: rgba(127, 156, 207, 0.34);
+      --line-strong: rgba(127, 156, 207, 0.56);
+      --glow-a: rgba(127, 156, 207, 0.2);
+      --glow-b: rgba(85, 120, 155, 0.16);
     }
 
     * {
@@ -340,14 +340,15 @@
     .activity-picker__tools {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 2px 2px 6px;
+      justify-content: flex-end;
+      gap: 0;
+      padding: 0 2px 6px;
     }
 
     .activity-theme-label {
       color: var(--text-1);
       font-size: 12px;
+      display: none !important;
     }
 
     .activity-theme-select {
@@ -797,6 +798,12 @@
       white-space: nowrap;
     }
 
+    .frame-scrubber__step-button {
+      min-width: 28px;
+      padding: 0 6px;
+      font-weight: 700;
+    }
+
     .frame-scrubber__play-button.is-active {
       border-color: color-mix(in srgb, var(--accent) 54%, transparent);
       background: color-mix(in srgb, var(--accent-strong) 22%, transparent);
@@ -1033,6 +1040,353 @@
     .preview-modal .spine-card.is-modal-card .spine-preview {
       flex: 1;
       min-height: 0;
+      position: relative;
+    }
+
+    .fullscreen-debug-controls {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 12;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fullscreen-debug-menu {
+      position: relative;
+    }
+
+    .fullscreen-debug-mini-button {
+      width: 26px;
+      min-width: 26px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 7px;
+      background: rgba(10, 12, 16, 0.82);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .fullscreen-debug-mini-button:hover {
+      border-color: rgba(255, 255, 255, 0.38);
+      background: rgba(10, 12, 16, 0.94);
+    }
+
+    .fullscreen-debug-popup {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 6px);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(8, 10, 14, 0.9);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(6px);
+    }
+
+    .fullscreen-debug-popup[hidden] {
+      display: none !important;
+    }
+
+    .fullscreen-debug-popup--debug {
+      flex-direction: column;
+      align-items: stretch;
+      right: 0;
+      bottom: calc(100% + 6px);
+    }
+
+    .fullscreen-debug-controls__item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: #fff;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .fullscreen-debug-controls__toggle input {
+      display: none;
+    }
+
+    .fullscreen-debug-controls__toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 22px;
+      padding: 0;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+    }
+
+    .fullscreen-debug-controls__toggle:has(input:checked) {
+      border-color: rgba(117, 207, 230, 0.76);
+      background: rgba(117, 207, 230, 0.2);
+    }
+
+    .fullscreen-debug-controls__speed {
+      min-width: 60px;
+      height: 22px;
+      font-size: 10px;
+      padding: 0 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+    }
+
+    .fullscreen-debug-trail {
+      position: absolute;
+      inset: 0;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    /* Option C minimal visual override: keep behavior, simplify appearance */
+    body {
+      background: var(--bg-0) !important;
+      color: var(--text-0);
+      font-family: "Noto Sans SC", "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      display: none !important;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 14px 26px;
+      gap: 12px;
+    }
+
+    .corner-picker {
+      top: -1px;
+      right: -1px;
+      width: 78px;
+      height: 78px;
+      padding: 0;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+      clip-path: polygon(100% 0, 0 0, 100% 100%);
+      border-radius: 0;
+      background:
+        linear-gradient(
+          140deg,
+          color-mix(in srgb, var(--bg-0) 82%, var(--accent) 18%),
+          color-mix(in srgb, var(--bg-1) 76%, #ffffff 24%)
+        );
+      backdrop-filter: blur(9px);
+      -webkit-backdrop-filter: blur(9px);
+      box-shadow: -6px 6px 14px color-mix(in srgb, var(--bg-2) 20%, transparent);
+    }
+
+    .corner-picker:hover,
+    .corner-picker:focus-visible {
+      transform: translateY(-1px);
+      filter: none;
+      border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+      background:
+        linear-gradient(
+          140deg,
+          color-mix(in srgb, var(--bg-0) 78%, var(--accent) 22%),
+          color-mix(in srgb, var(--bg-1) 70%, #ffffff 30%)
+        );
+    }
+
+    .corner-picker__glyph {
+      position: absolute;
+      top: 11px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      margin: 0;
+      filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--bg-2) 32%, transparent));
+      opacity: 0.86;
+    }
+
+    .corner-picker__glyph::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      bottom: -2px;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 6px solid color-mix(in srgb, var(--text-0) 38%, transparent);
+    }
+
+    .hero,
+    .status-panel,
+    .grid-shell,
+    .spine-card,
+    .activity-picker__panel,
+    .preview-modal__content {
+      background: #fff !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 14px !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+    .hero,
+    .status-panel,
+    .grid-shell {
+      padding: 14px;
+    }
+
+    .input-row {
+      gap: 10px;
+    }
+
+    .url-input,
+    .mini-select,
+    .activity-theme-select {
+      background: #fff !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 10px !important;
+      color: var(--text-0) !important;
+      box-shadow: none !important;
+    }
+
+    .url-input:focus,
+    .mini-select:focus,
+    .activity-theme-select:focus {
+      border-color: var(--accent) !important;
+      outline: none !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, #fff 80%) !important;
+    }
+
+    .action-button,
+    .icon-button,
+    .activity-picker__close {
+      background: #fff !important;
+      color: var(--text-0) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 10px !important;
+      box-shadow: none !important;
+    }
+
+    .action-button:hover,
+    .icon-button:hover,
+    .activity-picker__close:hover {
+      border-color: var(--accent) !important;
+      background: color-mix(in srgb, #fff 82%, var(--accent) 18%) !important;
+    }
+
+    .status-text,
+    .activity-picker__meta,
+    .activity-option__url {
+      color: var(--text-1) !important;
+    }
+
+    .badge,
+    .activity-theme-label {
+      border: 1px solid var(--line) !important;
+      background: #fff !important;
+      color: var(--text-1) !important;
+    }
+
+    .spine-grid {
+      gap: 10px;
+    }
+
+    .spine-toolbar {
+      border-bottom: 1px solid var(--line) !important;
+      background: #fff !important;
+    }
+
+    .spine-name {
+      color: var(--text-0) !important;
+    }
+
+    .spine-name-input {
+      background: #fff !important;
+    }
+
+    .spine-preview {
+      background: color-mix(in srgb, #fff 86%, var(--bg-0) 14%) !important;
+      border: 1px dashed var(--line) !important;
+      border-radius: 12px !important;
+    }
+
+    .card-overlay {
+      background: color-mix(in srgb, #fff 92%, var(--bg-0) 8%) !important;
+      border-color: var(--line) !important;
+      backdrop-filter: none !important;
+    }
+
+    .frame-scrubber__input {
+      accent-color: var(--accent);
+    }
+
+    .frame-scrubber__play-button {
+      border: 1px solid var(--line) !important;
+      background: #fff !important;
+      color: var(--text-0) !important;
+      box-shadow: none !important;
+    }
+
+    .frame-scrubber__play-button:hover {
+      border-color: var(--accent) !important;
+      background: color-mix(in srgb, #fff 82%, var(--accent) 18%) !important;
+    }
+
+    .mini-progress-track {
+      background: color-mix(in srgb, #fff 78%, var(--accent) 22%) !important;
+      box-shadow: inset 0 0 0 1px var(--line) !important;
+    }
+
+    .mini-progress-fill {
+      background: var(--accent) !important;
+      box-shadow: none !important;
+    }
+
+    .activity-picker {
+      background: rgba(16, 24, 38, 0.18);
+    }
+
+    .activity-picker__panel {
+      border-left: 1px solid var(--line) !important;
+      transform: translateX(0) !important;
+    }
+
+    .activity-picker__resize,
+    .activity-picker__resize::before {
+      display: none !important;
+    }
+
+    .activity-option {
+      border: 1px solid var(--line) !important;
+      border-radius: 10px !important;
+      background: #fff !important;
+      box-shadow: none !important;
+    }
+
+    .activity-option:hover {
+      border-color: var(--accent) !important;
+      background: color-mix(in srgb, #fff 86%, var(--accent) 14%) !important;
+    }
+
+    .preview-modal {
+      background: rgba(16, 24, 38, 0.2) !important;
+    }
+
+    .preview-modal .spine-card.is-modal-card {
+      border-radius: 14px !important;
+      box-shadow: none !important;
     }
 
     @media (max-width: 1600px) {
@@ -1206,7 +1560,6 @@
           aria-label="关闭活动链接弹窗">×</button>
       </header>
       <div class="activity-picker__tools">
-        <label class="activity-theme-label" for="themeSelect">7国+月国配色</label>
         <select id="themeSelect" class="activity-theme-select" title="切换全局配色主题">
           <option value="mondstadt">蒙德 · 自由清风</option>
           <option value="liyue">璃月 · 契约岩港</option>
