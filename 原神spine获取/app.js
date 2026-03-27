@@ -934,7 +934,11 @@
     const bonesEnabled = Boolean(card.debugBonesEnabled);
     const pathsEnabled = Boolean(card.debugPathsEnabled);
     const meshesEnabled = Boolean(card.debugMeshesEnabled);
-    const enabled = bonesEnabled || pathsEnabled || meshesEnabled;
+    const meshHullEnabled = Boolean(card.debugMeshHullEnabled);
+    const meshTrianglesEnabled = Boolean(card.debugMeshTrianglesEnabled);
+    const boundingBoxesEnabled = Boolean(card.debugBoundingBoxesEnabled);
+    const clippingEnabled = Boolean(card.debugClippingEnabled);
+    const enabled = bonesEnabled || pathsEnabled || meshesEnabled || meshHullEnabled || meshTrianglesEnabled || boundingBoxesEnabled || clippingEnabled;
     if (typeof card.player.debugRender === "boolean") {
       card.player.debugRender = enabled;
     }
@@ -946,7 +950,19 @@
         card.player.debug.paths = pathsEnabled;
       }
       if ("meshes" in card.player.debug) {
-        card.player.debug.meshes = meshesEnabled;
+        card.player.debug.meshes = meshesEnabled || meshHullEnabled || meshTrianglesEnabled;
+      }
+      if ("meshHull" in card.player.debug) {
+        card.player.debug.meshHull = meshHullEnabled;
+      }
+      if ("meshTriangles" in card.player.debug) {
+        card.player.debug.meshTriangles = meshTrianglesEnabled;
+      }
+      if ("boundingBoxes" in card.player.debug) {
+        card.player.debug.boundingBoxes = boundingBoxesEnabled;
+      }
+      if ("clipping" in card.player.debug) {
+        card.player.debug.clipping = clippingEnabled;
       }
     }
   }
@@ -2223,6 +2239,30 @@
     const meshesToggle = document.createElement("input");
     meshesToggle.type = "checkbox";
     meshesLabel.appendChild(meshesToggle);
+
+    const meshHullLabel = document.createElement("label");
+    meshHullLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const meshHullToggle = document.createElement("input");
+    meshHullToggle.type = "checkbox";
+    meshHullLabel.appendChild(meshHullToggle);
+
+    const meshTrianglesLabel = document.createElement("label");
+    meshTrianglesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const meshTrianglesToggle = document.createElement("input");
+    meshTrianglesToggle.type = "checkbox";
+    meshTrianglesLabel.appendChild(meshTrianglesToggle);
+
+    const boundingBoxesLabel = document.createElement("label");
+    boundingBoxesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const boundingBoxesToggle = document.createElement("input");
+    boundingBoxesToggle.type = "checkbox";
+    boundingBoxesLabel.appendChild(boundingBoxesToggle);
+
+    const clippingLabel = document.createElement("label");
+    clippingLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const clippingToggle = document.createElement("input");
+    clippingToggle.type = "checkbox";
+    clippingLabel.appendChild(clippingToggle);
     const normalizeToggleLabelAscii = (label, icon, title) => {
       while (label.childNodes.length > 1) {
         label.removeChild(label.lastChild);
@@ -2245,6 +2285,11 @@
     normalizeToggleLabel(bonesLabel, "🦴", "骨骼");
     normalizeToggleLabel(pathsLabel, "🧭", "路径");
     normalizeToggleLabel(meshesLabel, "▦", "网格");
+
+    normalizeToggleLabel(meshHullLabel, "⬠", "网格外框");
+    normalizeToggleLabel(meshTrianglesLabel, "△", "网格三角");
+    normalizeToggleLabel(boundingBoxesLabel, "⬚", "边界框");
+    normalizeToggleLabel(clippingLabel, "✂", "裁剪");
 
     const speedMenu = document.createElement("div");
     speedMenu.className = "fullscreen-debug-menu";
@@ -2276,6 +2321,10 @@
     debugMenuPopup.appendChild(bonesLabel);
     debugMenuPopup.appendChild(pathsLabel);
     debugMenuPopup.appendChild(meshesLabel);
+    debugMenuPopup.appendChild(meshHullLabel);
+    debugMenuPopup.appendChild(meshTrianglesLabel);
+    debugMenuPopup.appendChild(boundingBoxesLabel);
+    debugMenuPopup.appendChild(clippingLabel);
     debugMenuButton.textContent = String.fromCodePoint(0x1F6E0);
     debugMenuButton.title = "Debug";
     while (speedLabel.childNodes.length > 0) {
@@ -2364,6 +2413,10 @@
       bonesToggle,
       pathsToggle,
       meshesToggle,
+      meshHullToggle,
+      meshTrianglesToggle,
+      boundingBoxesToggle,
+      clippingToggle,
       debugTrailCanvas,
       player: null,
       animations: [],
@@ -2395,6 +2448,10 @@
       debugBonesEnabled: false,
       debugPathsEnabled: false,
       debugMeshesEnabled: false,
+      debugMeshHullEnabled: false,
+      debugMeshTrianglesEnabled: false,
+      debugBoundingBoxesEnabled: false,
+      debugClippingEnabled: false,
       debugTrailPoints: []
     };
     const syncSpeedButtonUi = (options) => {
@@ -2501,6 +2558,22 @@
     });
     meshesToggle.addEventListener("change", () => {
       card.debugMeshesEnabled = Boolean(meshesToggle.checked);
+      applyCardDebugRender(card);
+    });
+    meshHullToggle.addEventListener("change", () => {
+      card.debugMeshHullEnabled = Boolean(meshHullToggle.checked);
+      applyCardDebugRender(card);
+    });
+    meshTrianglesToggle.addEventListener("change", () => {
+      card.debugMeshTrianglesEnabled = Boolean(meshTrianglesToggle.checked);
+      applyCardDebugRender(card);
+    });
+    boundingBoxesToggle.addEventListener("change", () => {
+      card.debugBoundingBoxesEnabled = Boolean(boundingBoxesToggle.checked);
+      applyCardDebugRender(card);
+    });
+    clippingToggle.addEventListener("change", () => {
+      card.debugClippingEnabled = Boolean(clippingToggle.checked);
       applyCardDebugRender(card);
     });
     syncSpeedButtonUi({ closePopup: true });
