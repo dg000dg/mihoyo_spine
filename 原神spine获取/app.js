@@ -244,28 +244,11 @@
   }
 
   function closeCardDebugPopups(card) {
-    if (!card) {
-      return;
-    }
-    if (card.speedMenuPopup) {
-      card.speedMenuPopup.hidden = true;
-    }
-    if (card.debugMenuPopup) {
-      card.debugMenuPopup.hidden = true;
-    }
+    return;
   }
 
   function handleGlobalPointerDown(event) {
-    if (!state.activeModalCardId) {
-      return;
-    }
-    const card = state.cards.get(state.activeModalCardId);
-    if (!card || !card.debugPanel || !(event.target instanceof Node)) {
-      return;
-    }
-    if (!card.debugPanel.contains(event.target)) {
-      closeCardDebugPopups(card);
-    }
+    return;
   }
 
   function handleGlobalKeydown(event) {
@@ -914,6 +897,7 @@
   }
 
   function applyCardPlaybackSpeed(card) {
+    return;
     if (!card || !card.player) {
       return;
     }
@@ -928,6 +912,7 @@
   }
 
   function applyCardDebugRender(card) {
+    return;
     if (!card || !card.player) {
       return;
     }
@@ -968,6 +953,7 @@
   }
 
   function drawCardDebugTrail(card) {
+    return;
     if (!card || !card.debugTrailCanvas) {
       return;
     }
@@ -2202,16 +2188,19 @@
     speedLabel.className = "fullscreen-debug-controls__item";
     speedLabel.textContent = "";
     speedLabel.textContent = "速度";
-    const speedSelect = document.createElement("select");
-    speedSelect.className = "mini-select fullscreen-debug-controls__speed";
-    [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2].forEach((value) => {
-      const option = document.createElement("option");
-      option.value = String(value);
-      option.textContent = `${value}x`;
-      speedSelect.appendChild(option);
+    const speedPresets = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+    const speedList = document.createElement("div");
+    speedList.className = "fullscreen-speed-list";
+    const speedButtons = speedPresets.map((value) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "fullscreen-speed-option";
+      button.textContent = `${value}x`;
+      button.dataset.speed = String(value);
+      speedList.appendChild(button);
+      return button;
     });
-    speedSelect.value = "1";
-    speedLabel.appendChild(speedSelect);
+    speedLabel.appendChild(speedList);
 
     const trailLabel = document.createElement("label");
     trailLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
@@ -2327,10 +2316,6 @@
     debugMenuPopup.appendChild(clippingLabel);
     debugMenuButton.textContent = String.fromCodePoint(0x1F6E0);
     debugMenuButton.title = "Debug";
-    while (speedLabel.childNodes.length > 0) {
-      speedLabel.removeChild(speedLabel.firstChild);
-    }
-    speedLabel.appendChild(speedSelect);
     speedMenuButton.textContent = "⚡";
     speedMenuButton.title = "设置播放速度";
     debugMenuButton.textContent = "🛠";
@@ -2406,7 +2391,6 @@
       debugPanel,
       speedMenuButton,
       speedMenuPopup,
-      speedSelect,
       debugMenuButton,
       debugMenuPopup,
       trailToggle,
@@ -2419,6 +2403,7 @@
       clippingToggle,
       debugTrailCanvas,
       player: null,
+      loadedWithNativeControls: false,
       animations: [],
       skins: [],
       isVisible: false,
@@ -2458,6 +2443,11 @@
       const shouldClosePopup = Boolean(options && options.closePopup);
       speedMenuButton.textContent = String.fromCodePoint(0x26A1);
       speedMenuButton.title = `Speed ${card.playbackSpeed}x`;
+      speedButtons.forEach((button) => {
+        const value = Number(button.dataset.speed);
+        const isActive = Math.abs(value - card.playbackSpeed) < 0.0001;
+        button.classList.toggle("is-active", isActive);
+      });
       if (shouldClosePopup && card.speedMenuPopup) {
         card.speedMenuPopup.hidden = true;
       }
@@ -2524,8 +2514,7 @@
     speedMenuButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      const nextHidden = !speedMenuPopup.hidden;
-      speedMenuPopup.hidden = nextHidden;
+      speedMenuPopup.hidden = false;
       debugMenuPopup.hidden = true;
     });
     debugMenuButton.addEventListener("click", (event) => {
@@ -2535,11 +2524,15 @@
       debugMenuPopup.hidden = nextHidden;
       speedMenuPopup.hidden = true;
     });
-    speedSelect.addEventListener("change", () => {
-      const speed = Number(speedSelect.value);
-      card.playbackSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
-      applyCardPlaybackSpeed(card);
-      syncSpeedButtonUi({ closePopup: true });
+    speedButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const speed = Number(button.dataset.speed);
+        card.playbackSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
+        applyCardPlaybackSpeed(card);
+        syncSpeedButtonUi({ closePopup: true });
+      });
     });
     trailToggle.addEventListener("change", () => {
       card.debugTrailEnabled = Boolean(trailToggle.checked);
@@ -2589,9 +2582,8 @@
       const otherExportActive = Boolean(findActiveGifExport(card));
       card.fullscreenButton.textContent = isActiveModal ? "退出全屏" : "全屏";
       card.fullscreenButton.title = isActiveModal ? "退出浮窗预览" : "打开浮窗预览";
-      card.debugPanel.hidden = !isActiveModal;
-      if (!isActiveModal) {
-        closeCardDebugPopups(card);
+      if (card.debugPanel) {
+        card.debugPanel.hidden = true;
       }
       card.exportImageButton.hidden = !isActiveModal;
       card.exportGifButton.hidden = !isActiveModal;
@@ -2614,6 +2606,23 @@
       card.exportGifButton.title = card.isExportingGif
         ? "正在导出 GIF"
         : (otherExportActive ? "已有其他 GIF 导出任务正在进行" : "导出当前动画为 GIF");
+    }
+  }
+
+  function reloadCardPlayerForNativeControls(card) {
+    if (!card) {
+      return;
+    }
+    const expectedShowControls = Boolean(card.isModalOpen);
+    if (card.player && card.loadedWithNativeControls === expectedShowControls) {
+      return;
+    }
+    if (card.player) {
+      disposeCardPlayer(card, "");
+    }
+    if (card.shouldBeLoaded) {
+      enqueueCardLoad(card);
+      processLoadQueue();
     }
   }
 
@@ -2660,6 +2669,7 @@
     dom.previewModal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     enqueueCardLoad(card);
+    reloadCardPlayerForNativeControls(card);
     syncFullscreenButtons();
     processLoadQueue();
   }
@@ -2709,6 +2719,7 @@
     if (card.debugTrailCanvas) {
       card.debugTrailCanvas.hidden = true;
     }
+    reloadCardPlayerForNativeControls(card);
     refreshCardFrameScrubber(card);
     syncFullscreenButtons();
   }
@@ -2862,6 +2873,7 @@
 
   async function loadCardPlayer(card, renderToken) {
     setCardOverlay(card, `正在加载 ${card.group.fileName} ...`, "loading");
+    const expectedShowControls = Boolean(card && card.isModalOpen);
 
     const runtimeCandidates = Array.isArray(card.group.runtimeCandidates) && card.group.runtimeCandidates.length
       ? card.group.runtimeCandidates
@@ -2881,7 +2893,9 @@
       }
 
       try {
-        player = await createPlayer(runtime, candidate, card.mount, card.group);
+        player = await createPlayer(runtime, candidate, card.mount, card.group, {
+          showControls: expectedShowControls
+        });
         break;
       } catch (error) {
         lastError = error;
@@ -2905,6 +2919,7 @@
     }
 
     card.player = player;
+    card.loadedWithNativeControls = expectedShowControls;
     card.lastLoadedAt = Date.now();
     attachCanvasRecovery(card, player, renderToken);
     hydrateCardControls(card);
@@ -2953,6 +2968,19 @@
         }
 
         const viewport = runtimeKey === "3.8" ? null : buildGroupViewport(group);
+        const normalizedViewport = runtimeKey === "3.8"
+          ? undefined
+          : Object.assign({
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            padLeft: 0,
+            padRight: 0,
+            padTop: 0,
+            padBottom: 0,
+            debugRender: false
+          }, viewport || {});
         const playerOptions = Object.assign({
           atlasUrl: group.atlasUrl,
           jsonUrl: group.jsonUrl,
@@ -2961,10 +2989,10 @@
           backgroundColor: "09131b",
           fullScreenBackgroundColor: "050b11",
           alpha: false,
-          premultipliedAlpha: Boolean(group.usesPremultipliedAlpha),
+          premultipliedAlpha: group.usesPremultipliedAlpha !== false,
           mipmaps: false,
           preserveDrawingBuffer: false,
-          viewport: viewport || undefined,
+          viewport: normalizedViewport,
           success: (instance) => {
             try {
               instance.__spineRuntime = runtime;
@@ -3259,6 +3287,7 @@
 
     card.mount.innerHTML = "";
     card.player = null;
+    card.loadedWithNativeControls = false;
 
     if (overlayMessage) {
       setCardOverlay(card, overlayMessage, "idle");
