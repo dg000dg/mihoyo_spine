@@ -979,6 +979,150 @@
     throw new Error("Failed to extract webpack modules from frame.");
   }
 
+  function normalizeSpineId(value, fallback) {
+    const base = String(value || "")
+      .trim()
+      .replace(/[^\w.-]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+    return base || fallback;
+  }
+
+  function collectSpineNodesFromPuzzle(node, platform, collector) {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+
+    if (Array.isArray(node)) {
+      node.forEach((item) => collectSpineNodesFromPuzzle(item, platform, collector));
+      return;
+    }
+
+    if (node.name === "@puzzle/spine-player" && node.options && Array.isArray(node.options.spineList)) {
+      collector.push({
+        platform,
+        spineList: node.options.spineList
+      });
+    }
+
+    if (Array.isArray(node.nodes)) {
+      collectSpineNodesFromPuzzle(node.nodes, platform, collector);
+    }
+    if (Array.isArray(node.children)) {
+      collectSpineNodesFromPuzzle(node.children, platform, collector);
+    }
+  }
+
+  function extractPuzzleSpines(runtimeWindow) {
+    const result = {
+      SPINE_MANIFEST: {},
+      MAIN_MANIFEST: []
+    };
+
+    if (!runtimeWindow || typeof runtimeWindow !== "object") {
+      return result;
+    }
+
+    const configCandidates = [];
+    const directConfig = runtimeWindow.PUZZLE_RENDER_CONFIG;
+    if (directConfig && typeof directConfig === "object") {
+      configCandidates.push(directConfig);
+    }
+
+    Object.keys(runtimeWindow).forEach((key) => {
+      if (!/^PUZZLE_CONFIG_/i.test(key)) {
+        return;
+      }
+      const value = runtimeWindow[key];
+      if (value && typeof value === "object") {
+        configCandidates.push(value);
+      }
+    });
+
+    if (!configCandidates.length) {
+      return result;
+    }
+
+    const spineNodes = [];
+    configCandidates.forEach((config) => {
+      collectSpineNodesFromPuzzle(config && config.pc ? config.pc : null, "pc", spineNodes);
+      collectSpineNodesFromPuzzle(config && config.h5 ? config.h5 : null, "h5", spineNodes);
+      collectSpineNodesFromPuzzle(config, "global", spineNodes);
+    });
+
+    if (!spineNodes.length) {
+      return result;
+    }
+
+    const seenPair = new Set();
+    const idCounts = {};
+    let fallbackIndex = 0;
+
+    spineNodes.forEach((entry) => {
+      const platform = entry.platform || "puzzle";
+      const spineList = Array.isArray(entry.spineList) ? entry.spineList : [];
+
+      spineList.forEach((item) => {
+        const manifest = item && item.manifest && typeof item.manifest === "object"
+          ? item.manifest
+          : null;
+        if (!manifest) {
+          return;
+        }
+
+        const atlas = typeof manifest.atlas === "string" ? manifest.atlas : "";
+        const json = typeof manifest.json === "string" ? manifest.json : "";
+        if (!atlas || !json) {
+          return;
+        }
+
+        const pairKey = `${atlas}@@${json}`;
+        if (seenPair.has(pairKey)) {
+          return;
+        }
+        seenPair.add(pairKey);
+
+        fallbackIndex += 1;
+        const rawId = item.spineName || manifest.name || item.spineId || `puzzle_spine_${fallbackIndex}`;
+        const normalizedBaseId = normalizeSpineId(rawId, `puzzle_spine_${fallbackIndex}`);
+        const nextCount = (idCounts[normalizedBaseId] || 0) + 1;
+        idCounts[normalizedBaseId] = nextCount;
+        const manifestId = nextCount > 1 ? `${normalizedBaseId}_${nextCount}` : normalizedBaseId;
+
+        result.SPINE_MANIFEST[manifestId] = {
+          atlas,
+          json,
+          module: `puzzle_${platform}`
+        };
+
+        const images = Array.isArray(manifest.img) ? manifest.img : [];
+        images.forEach((image, imageIndex) => {
+          if (!image) {
+            return;
+          }
+
+          const src = typeof image.src === "string" ? image.src : (typeof image === "string" ? image : "");
+          if (!src) {
+            return;
+          }
+
+          const imageId = normalizeSpineId(
+            image.id || `${manifestId}_img_${imageIndex + 1}`,
+            `${manifestId}_img_${imageIndex + 1}`
+          );
+
+          result.MAIN_MANIFEST.push({
+            id: imageId,
+            src,
+            module: `puzzle_${platform}`
+          });
+        });
+      });
+    });
+
+    result.MAIN_MANIFEST = dedupeResources(result.MAIN_MANIFEST);
+    return result;
+  }
+
   async function collectPageResourcesFromHtml(html, url) {
     const loaded = await loadHtmlInIframe(html, url);
     const frame = loaded.iframe;
@@ -989,14 +1133,39 @@
     }
 
     const moduleBase = new URL(".", base).toString();
-    const modules = await extractModulesFromFrame(frame);
-    const spineResult = extractSpine(modules, moduleBase, frame.contentWindow);
-    const staticResult = dedupeResources(
-      extractStaticFiles(modules, moduleBase).concat(extractCapturedStaticFiles(spineResult.CAPTURED_RESOURCES))
-    );
+    let modules = {};
+    let spineResult = {
+      SPINE_MANIFEST: {},
+      MAIN_MANIFEST: [],
+      CAPTURED_RESOURCES: {}
+    };
+    let staticResult = [];
 
+    try {
+      modules = await extractModulesFromFrame(frame);
+    } catch (_error) {
+      modules = {};
+    }
+
+    if (Object.keys(modules).length) {
+      spineResult = extractSpine(modules, moduleBase, frame.contentWindow);
+      staticResult = dedupeResources(
+        extractStaticFiles(modules, moduleBase).concat(extractCapturedStaticFiles(spineResult.CAPTURED_RESOURCES))
+      );
+
+      spineResult.MAIN_MANIFEST = dedupeResources(
+        spineResult.MAIN_MANIFEST.concat(matchSpineImagesFromStatic(spineResult.SPINE_MANIFEST, staticResult))
+      );
+    }
+
+    const puzzleResult = extractPuzzleSpines(frame.contentWindow);
+    spineResult.SPINE_MANIFEST = Object.assign(
+      {},
+      spineResult.SPINE_MANIFEST || {},
+      puzzleResult.SPINE_MANIFEST || {}
+    );
     spineResult.MAIN_MANIFEST = dedupeResources(
-      spineResult.MAIN_MANIFEST.concat(matchSpineImagesFromStatic(spineResult.SPINE_MANIFEST, staticResult))
+      (spineResult.MAIN_MANIFEST || []).concat(puzzleResult.MAIN_MANIFEST || [])
     );
 
     frame.remove();

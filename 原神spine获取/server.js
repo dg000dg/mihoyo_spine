@@ -1,7 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { randomUUID } = require("crypto");
+const { randomUUID, createHash } = require("crypto");
 const { chromium } = require("playwright-core");
 const yazl = require("yazl");
 
@@ -292,6 +292,37 @@ async function fetchBufferCached(source, cache) {
   return task;
 }
 
+function decodeAtlasTextFromBuffer(buffer) {
+  const rawText = Buffer.isBuffer(buffer) ? buffer.toString("utf8") : String(buffer || "");
+  const trimmed = rawText.trim();
+  if (!trimmed) {
+    return rawText;
+  }
+
+  const lines = trimmed.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length < 16) {
+    return rawText;
+  }
+
+  const numericValues = [];
+  for (const line of lines) {
+    if (!/^\d{1,3}$/.test(line)) {
+      return rawText;
+    }
+    const value = Number(line);
+    if (!Number.isInteger(value) || value < 0 || value > 255) {
+      return rawText;
+    }
+    numericValues.push(value);
+  }
+
+  try {
+    return Buffer.from(numericValues).toString("utf8");
+  } catch {
+    return rawText;
+  }
+}
+
 async function valueToBuffer(value, kind, cache) {
   if (kind === "atlas") {
     return Buffer.from(String(value || ""), "utf8");
@@ -313,17 +344,23 @@ async function valueToBuffer(value, kind, cache) {
 }
 
 async function valueToText(value, kind, cache) {
-  if (kind === "atlas") {
-    return String(value || "");
-  }
-
   if (typeof value === "string") {
     const trimmed = value.trim();
     if (/^(https?:|data:)/i.test(trimmed)) {
       const buffer = await fetchBufferCached(trimmed, cache);
+      if (kind === "atlas") {
+        return decodeAtlasTextFromBuffer(buffer);
+      }
       return buffer.toString("utf8");
     }
+    if (kind === "atlas") {
+      return decodeAtlasTextFromBuffer(Buffer.from(value, "utf8"));
+    }
     return value;
+  }
+
+  if (kind === "atlas") {
+    return String(value || "");
   }
 
   return JSON.stringify(value, null, 2);
@@ -375,6 +412,31 @@ function extractAtlasPageSizes(atlasText) {
   }
 
   return sizes;
+}
+
+function normalizeAtlasForDedup(atlasText) {
+  const lines = String(atlasText || "").split(/\r?\n/);
+  const normalized = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const currentLine = lines[index];
+    const trimmed = currentLine.trim();
+    const next = (lines[index + 1] || "").trim();
+
+    if (
+      trimmed
+      && !trimmed.includes(":")
+      && /\.(png|jpg|jpeg|webp)$/i.test(trimmed)
+      && next.startsWith("size:")
+    ) {
+      normalized.push("__PAGE__");
+      continue;
+    }
+
+    normalized.push(currentLine);
+  }
+
+  return normalized.join("\n");
 }
 
 function extractPreferredRenderSize(jsonText, atlasText) {
@@ -898,6 +960,7 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
   const bufferCache = new Map();
   const groups = [];
   const skipped = [];
+  const dedupeKeys = new Set();
   const imageLookup = buildImageLookup(
     []
       .concat(collected && collected.spineres ? collected.spineres.MAIN_MANIFEST || [] : [])
@@ -926,8 +989,22 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
     const atlasPath = joinPosix(groupDir, atlasFileName);
     const jsonPath = joinPosix(groupDir, jsonFileName);
 
-    const atlasText = String(entry.atlas || "");
+    const atlasText = await valueToText(entry.atlas, "atlas", bufferCache);
     const jsonText = await valueToText(entry.json, "json", bufferCache);
+    const dedupeKey = createHash("sha1")
+      .update(normalizeAtlasForDedup(atlasText))
+      .update("\n---\n")
+      .update(jsonText)
+      .digest("hex");
+    if (dedupeKeys.has(dedupeKey)) {
+      skipped.push({
+        id: displayName,
+        reason: "重复 Spine（骨骼与图集数据一致），已自动去重。"
+      });
+      continue;
+    }
+    dedupeKeys.add(dedupeKey);
+
     const stagedFiles = [
       createFileRecord(atlasPath, Buffer.from(atlasText, "utf8"), "text/plain; charset=utf-8"),
       createFileRecord(jsonPath, Buffer.from(jsonText, "utf8"), "application/json; charset=utf-8")
