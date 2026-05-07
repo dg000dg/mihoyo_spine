@@ -1,7 +1,7 @@
 {
     "defaults": {
         "scale": 1,
-        "format": "gif",
+        "format": "mp4_264",
         "frameWorkers": 8,
         "keepFrames": true,
         "skipExistingOutput": true,
@@ -12,6 +12,11 @@
             "skeleton": "pc_aibi",
             "filePrefix": "zzz",
             "animations": ["all"]
+        }, 
+        {
+            "skeleton": "不死途",
+            "filePrefix": "zzz",
+            "animations": ["idle"]
         }
     ]
 }

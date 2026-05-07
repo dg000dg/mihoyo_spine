@@ -1,7 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { randomUUID, createHash } = require("crypto");
+const { randomUUID } = require("crypto");
 const { chromium } = require("playwright-core");
 const yazl = require("yazl");
 
@@ -412,31 +412,6 @@ function extractAtlasPageSizes(atlasText) {
   }
 
   return sizes;
-}
-
-function normalizeAtlasForDedup(atlasText) {
-  const lines = String(atlasText || "").split(/\r?\n/);
-  const normalized = [];
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const currentLine = lines[index];
-    const trimmed = currentLine.trim();
-    const next = (lines[index + 1] || "").trim();
-
-    if (
-      trimmed
-      && !trimmed.includes(":")
-      && /\.(png|jpg|jpeg|webp)$/i.test(trimmed)
-      && next.startsWith("size:")
-    ) {
-      normalized.push("__PAGE__");
-      continue;
-    }
-
-    normalized.push(currentLine);
-  }
-
-  return normalized.join("\n");
 }
 
 function extractPreferredRenderSize(jsonText, atlasText) {
@@ -960,7 +935,6 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
   const bufferCache = new Map();
   const groups = [];
   const skipped = [];
-  const dedupeKeys = new Set();
   const imageLookup = buildImageLookup(
     []
       .concat(collected && collected.spineres ? collected.spineres.MAIN_MANIFEST || [] : [])
@@ -991,20 +965,6 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
 
     const atlasText = await valueToText(entry.atlas, "atlas", bufferCache);
     const jsonText = await valueToText(entry.json, "json", bufferCache);
-    const dedupeKey = createHash("sha1")
-      .update(normalizeAtlasForDedup(atlasText))
-      .update("\n---\n")
-      .update(jsonText)
-      .digest("hex");
-    if (dedupeKeys.has(dedupeKey)) {
-      skipped.push({
-        id: displayName,
-        reason: "重复 Spine（骨骼与图集数据一致），已自动去重。"
-      });
-      continue;
-    }
-    dedupeKeys.add(dedupeKey);
-
     const stagedFiles = [
       createFileRecord(atlasPath, Buffer.from(atlasText, "utf8"), "text/plain; charset=utf-8"),
       createFileRecord(jsonPath, Buffer.from(jsonText, "utf8"), "application/json; charset=utf-8")
