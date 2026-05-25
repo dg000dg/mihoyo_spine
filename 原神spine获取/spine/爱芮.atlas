@@ -1,0 +1,989 @@
+爱芮.png
+	size: 2048, 1625
+	filter: Linear, Linear
+	scale: 0.4
+QS_pupil_L
+	bounds: 746, 729, 22, 30
+QS_pupil_R_shadow
+	bounds: 1750, 1196, 23, 20
+QS_roleL_Shoulder_L1
+	bounds: 907, 356, 52, 66
+QS_roleL_Shoulder_L2
+	bounds: 1879, 1227, 25, 31
+QS_roleL_Shoulder_R1
+	bounds: 580, 331, 130, 107
+QS_roleL_Shoulder_R2
+	bounds: 1557, 162, 75, 116
+	rotate: 90
+QS_roleL_Shoulder_shadow
+	bounds: 626, 595, 96, 50
+QS_roleL_arm_L1
+	bounds: 736, 174, 101, 82
+	rotate: 180
+QS_roleL_arm_L2
+	bounds: 1752, 254, 87, 139
+	rotate: 90
+QS_roleL_arm_L_rosette_1
+	bounds: 808, 1605, 16, 14
+QS_roleL_arm_L_rosette_2
+	bounds: 6, 561, 40, 66
+QS_roleL_arm_R1
+	bounds: 1753, 1546, 87, 73
+QS_roleL_arm_R2
+	bounds: 1897, 277, 145, 78
+QS_roleL_arm_R2_line_1
+	bounds: 1493, 32, 123, 35
+QS_roleL_arm_R2_line_2
+	bounds: 53, 1543, 76, 16
+	rotate: 90
+QS_roleL_arm_R2_shadow
+	bounds: 1966, 1179, 43, 76
+QS_roleL_arm_clothing_L1
+	bounds: 253, 179, 74, 99
+	rotate: 270
+QS_roleL_arm_clothing_L10
+	bounds: 1316, 85, 53, 58
+QS_roleL_arm_clothing_L11
+	bounds: 1586, 852, 103, 38
+QS_roleL_arm_clothing_L2
+	bounds: 83, 1285, 112, 152
+QS_roleL_arm_clothing_L3
+	bounds: 864, 569, 106, 57
+QS_roleL_arm_clothing_L4
+	bounds: 1554, 229, 126, 104
+	rotate: 180
+QS_roleL_arm_clothing_L5
+	bounds: 1180, 1606, 25, 13
+QS_roleL_arm_clothing_L6
+	bounds: 1177, 830, 56, 35
+QS_roleL_arm_clothing_L7
+	bounds: 914, 1202, 28, 24
+QS_roleL_arm_clothing_L8
+	bounds: 1577, 1195, 22, 25
+QS_roleL_arm_clothing_L9
+	bounds: 1682, 1113, 91, 77
+QS_roleL_arm_clothing_R1
+	bounds: 463, 249, 112, 139
+	rotate: 90
+QS_roleL_arm_clothing_R2
+	bounds: 660, 1495, 15, 8
+QS_roleL_arm_clothing_R2_1
+	bounds: 1625, 1422, 52, 99
+QS_roleL_arm_clothing_R2_10
+	bounds: 133, 1441, 43, 133
+QS_roleL_arm_clothing_R2_10_01
+	bounds: 532, 1156, 38, 22
+QS_roleL_arm_clothing_R2_2
+	bounds: 1416, 1554, 13, 21
+QS_roleL_arm_clothing_R2_3
+	bounds: 1403, 1574, 38, 45
+QS_roleL_arm_clothing_R2_4
+	bounds: 1735, 1601, 12, 18
+QS_roleL_arm_clothing_R2_5
+	bounds: 1158, 998, 26, 36
+QS_roleL_arm_clothing_R2_6
+	bounds: 1969, 1262, 14, 16
+QS_roleL_arm_clothing_R2_7
+	bounds: 1767, 462, 154, 146
+	rotate: 180
+QS_roleL_arm_clothing_R2_8
+	bounds: 469, 192, 70, 136
+	rotate: 90
+QS_roleL_arm_clothing_R2_9
+	bounds: 74, 1515, 11, 38
+QS_roleL_arm_clothing_R3
+	bounds: 1422, 1247, 48, 66
+QS_roleL_arm_clothing_R4
+	bounds: 226, 1060, 42, 26
+QS_roleL_arm_clothing_R5
+	bounds: 1102, 119, 71, 70
+QS_roleL_body_1
+	bounds: 671, 1167, 98, 38
+QS_roleL_body_1_shadow_1
+	bounds: 1943, 1610, 7, 9
+QS_roleL_body_1_shadow_2
+	bounds: 1934, 1303, 13, 16
+QS_roleL_body_2
+	bounds: 742, 1561, 63, 58
+QS_roleL_body_acc_1
+	bounds: 114, 1467, 26, 152
+	rotate: 180
+QS_roleL_body_acc_2
+	bounds: 6, 190, 52, 161
+	rotate: 90
+QS_roleL_body_acc_3
+	bounds: 806, 132, 46, 160
+	rotate: 90
+QS_roleL_body_acc_4
+	bounds: 1775, 191, 174, 77
+QS_roleL_body_acc_4_shadow
+	bounds: 58, 1019, 51, 26
+QS_roleL_body_clothing_1
+	bounds: 26, 1049, 227, 270
+QS_roleL_body_clothing_2
+	bounds: 1111, 416, 180, 159
+QS_roleL_earphone_L
+	bounds: 6, 216, 80, 242
+	rotate: 270
+QS_roleL_earphone_R
+	bounds: 1958, 1062, 84, 259
+	rotate: 180
+QS_roleL_eye_highlight_L1
+	bounds: 719, 1605, 27, 14
+QS_roleL_eye_highlight_L2
+	bounds: 1838, 1461, 10, 15
+QS_roleL_eye_highlight_L3
+	bounds: 1316, 1615, 5, 4
+QS_roleL_eye_highlight_L4
+	bounds: 1231, 1263, 13, 17
+QS_roleL_eye_highlight_L5
+	bounds: 1823, 1542, 11, 14
+QS_roleL_eyeball_L
+	bounds: 624, 1483, 31, 34
+QS_roleL_eyebrow_L
+	bounds: 821, 950, 34, 16
+QS_roleL_eyebrow_R
+	bounds: 159, 1577, 42, 9
+	rotate: 90
+QS_roleL_eyelash_L1
+	bounds: 414, 1609, 11, 10
+QS_roleL_eyelash_L1_close
+	bounds: 158, 869, 48, 25
+QS_roleL_eyelash_L2
+	bounds: 286, 315, 49, 29
+QS_roleL_eyelash_L3
+	bounds: 32, 1609, 14, 10
+QS_roleL_eyelash_L4
+	bounds: 1631, 1526, 10, 13
+QS_roleL_eyelash_L5
+	bounds: 603, 1609, 32, 10
+QS_roleL_eyelash_R
+	bounds: 955, 728, 60, 28
+QS_roleL_eyelids_L1
+	bounds: 7, 1074, 29, 12
+QS_roleL_eyelids_L1_close
+	bounds: 621, 1260, 16, 4
+QS_roleL_eyelids_L1_close111
+	bounds: 544, 976, 38, 10
+QS_roleL_eyelids_L2
+	bounds: 658, 573, 49, 21
+	offsets: 0, 1, 49, 22
+QS_roleL_eyelids_L2_close
+	bounds: 715, 624, 44, 17
+QS_roleL_eyelids_L2_close_shadow
+	bounds: 198, 1609, 18, 10
+QS_roleL_eyelids_L_shadow
+	bounds: 162, 1290, 14, 17
+	offsets: 0, 0, 16, 17
+QS_roleL_eyelids_R1
+	bounds: 650, 1235, 18, 6
+QS_roleL_eyelids_R2
+	bounds: 178, 695, 51, 18
+QS_roleL_eyelids_R_shadow
+	bounds: 527, 1608, 20, 11
+QS_roleL_face
+	bounds: 1408, 733, 186, 212
+	rotate: 90
+QS_roleL_face_line
+	bounds: 1871, 12, 119, 168
+	rotate: 90
+QS_roleL_face_line_01
+	bounds: 1434, 1311, 20, 12
+QS_roleL_face_shadow_1
+	bounds: 986, 1598, 22, 21
+QS_roleL_face_shadow_2
+	bounds: 1230, 173, 88, 105
+QS_roleL_face_shadow_3
+	bounds: 153, 89, 48, 59
+QS_roleL_face_shadow_4
+	bounds: 313, 120, 79, 69
+QS_roleL_face_shadow_5
+	bounds: 6, 973, 64, 96
+QS_roleL_face_shadow_6
+	bounds: 1885, 1261, 60, 88
+QS_roleL_face_shadow_7
+	bounds: 1371, 72, 46, 58
+QS_roleL_face_shadow_8
+	bounds: 1973, 1547, 66, 72
+QS_roleL_face_shadow_9
+	bounds: 609, 241, 112, 103
+QS_roleL_hair_back1_1
+	bounds: 600, 1366, 44, 74
+QS_roleL_hair_back1_2
+	bounds: 1024, 1531, 16, 37
+QS_roleL_hair_back1_3
+	bounds: 1906, 1001, 25, 31
+	offsets: 1, 0, 26, 31
+QS_roleL_hair_back1_4
+	bounds: 764, 1060, 69, 57
+QS_roleL_hair_back2_1
+	bounds: 399, 1209, 22, 14
+QS_roleL_hair_back2_10
+	bounds: 1033, 477, 54, 35
+QS_roleL_hair_back2_2
+	bounds: 1611, 1075, 25, 24
+QS_roleL_hair_back2_3
+	bounds: 579, 891, 24, 33
+QS_roleL_hair_back2_4
+	bounds: 1098, 1288, 26, 14
+QS_roleL_hair_back2_5
+	bounds: 1184, 672, 56, 26
+QS_roleL_hair_back2_6
+	bounds: 6, 1507, 7, 11
+QS_roleL_hair_back2_7
+	bounds: 345, 1493, 126, 100
+	rotate: 90
+QS_roleL_hair_back2_8
+	bounds: 1211, 1575, 26, 44
+QS_roleL_hair_back2_9
+	bounds: 161, 1313, 43, 46
+QS_roleL_hair_back2_ACC
+	bounds: 2003, 813, 39, 43
+QS_roleL_hair_back3_1
+	bounds: 1092, 1254, 10, 28
+QS_roleL_hair_back3_2
+	bounds: 1909, 417, 133, 133
+	rotate: 90
+QS_roleL_hair_back3_3
+	bounds: 967, 148, 32, 54
+QS_roleL_hair_back3_4
+	bounds: 37, 40, 51, 90
+QS_roleL_hair_back3_ACC_1
+	bounds: 710, 66, 63, 51
+QS_roleL_hair_back3_ACC_2
+	bounds: 233, 1208, 33, 58
+QS_roleL_hair_back4_1
+	bounds: 170, 518, 188, 175
+	rotate: 270
+QS_roleL_hair_back4_2
+	bounds: 460, 111, 75, 85
+	rotate: 90
+QS_roleL_hair_back4_3
+	bounds: 6, 813, 17, 44
+	offsets: 1, 0, 18, 44
+QS_roleL_hair_back4_4
+	bounds: 1673, 1280, 18, 10
+QS_roleL_hair_back4_5
+	bounds: 331, 68, 59, 73
+	rotate: 180
+QS_roleL_hair_back4_6
+	bounds: 1028, 803, 30, 54
+QS_roleL_hair_back4_7
+	bounds: 1970, 563, 72, 69
+QS_roleL_hair_back5_1
+	bounds: 1414, 1243, 18, 5
+QS_roleL_hair_back5_2
+	bounds: 1174, 54, 96, 38
+QS_roleL_hair_back5_3
+	bounds: 445, 368, 176, 180
+	rotate: 90
+QS_roleL_hair_back5_4
+	bounds: 16, 394, 157, 197
+	rotate: 90
+QS_roleL_hair_back5_5
+	bounds: 1713, 339, 156, 143
+QS_roleL_hand_L1
+	bounds: 1026, 105, 113, 50
+QS_roleL_hand_L2
+	bounds: 387, 32, 30, 61
+QS_roleL_hand_L3
+	bounds: 587, 491, 75, 52
+QS_roleL_hand_L4
+	bounds: 1970, 31, 35, 59
+QS_roleL_hand_L5
+	bounds: 79, 28, 30, 66
+QS_roleL_hand_L6
+	bounds: 719, 689, 52, 32
+QS_roleL_hand_R1
+	bounds: 1291, 522, 52, 40
+QS_roleL_hand_R111
+	bounds: 1683, 1437, 25, 23
+QS_roleL_hand_R112
+	bounds: 1468, 1164, 26, 22
+QS_roleL_hand_R113
+	bounds: 2027, 1486, 15, 11
+QS_roleL_hand_R2
+	bounds: 1416, 1152, 47, 46
+QS_roleL_hand_R6
+	bounds: 1372, 831, 38, 26
+QS_roleL_hand_R7
+	bounds: 1690, 147, 80, 69
+QS_roleL_hand_R8
+	bounds: 1105, 70, 90, 72
+	rotate: 180
+QS_roleL_hand_R9
+	bounds: 243, 646, 97, 39
+QS_roleL_helo
+	bounds: 1167, 805, 226, 248
+	rotate: 90
+QS_roleL_hiar_L1
+	bounds: 1201, 86, 70, 115
+	rotate: 90
+QS_roleL_hiar_L10
+	bounds: 1706, 55, 64, 56
+QS_roleL_hiar_L11
+	bounds: 1940, 93, 72, 66
+	rotate: 180
+QS_roleL_hiar_L12
+	bounds: 1835, 51, 63, 50
+QS_roleL_hiar_L13
+	bounds: 6, 1301, 12, 31
+QS_roleL_hiar_L14
+	bounds: 790, 8, 50, 91
+QS_roleL_hiar_L15
+	bounds: 1470, 59, 68, 80
+	rotate: 90
+QS_roleL_hiar_L16
+	bounds: 6, 1368, 19, 42
+QS_roleL_hiar_L17
+	bounds: 1717, 904, 61, 38
+QS_roleL_hiar_L18
+	bounds: 1920, 751, 84, 42
+QS_roleL_hiar_L2
+	bounds: 1429, 115, 114, 169
+	rotate: 90
+QS_roleL_hiar_L3
+	bounds: 1918, 1597, 20, 22
+	offsets: 0, 0, 20, 24
+QS_roleL_hiar_L4
+	bounds: 1472, 1614, 12, 5
+QS_roleL_hiar_L5
+	bounds: 191, 109, 61, 113
+	rotate: 90
+QS_roleL_hiar_L6
+	bounds: 143, 1570, 12, 49
+	rotate: 180
+QS_roleL_hiar_L7
+	bounds: 1632, 1266, 21, 9
+	offsets: 0, 0, 21, 11
+QS_roleL_hiar_L8
+	bounds: 1604, 1531, 22, 33
+	offsets: 1, 0, 23, 33
+QS_roleL_hiar_L9
+	bounds: 1160, 1237, 17, 13
+QS_roleL_hiar_M1
+	bounds: 752, 871, 32, 31
+QS_roleL_hiar_M10
+	bounds: 6, 107, 54, 96
+QS_roleL_hiar_M11
+	bounds: 860, 1594, 24, 25
+QS_roleL_hiar_M12
+	bounds: 1765, 106, 40, 118
+	rotate: 270
+QS_roleL_hiar_M13
+	bounds: 1055, 215, 110, 88
+	rotate: 180
+QS_roleL_hiar_M2
+	bounds: 170, 1520, 15, 53
+	offsets: 0, 0, 16, 53
+QS_roleL_hiar_M3
+	bounds: 1088, 1300, 24, 65
+QS_roleL_hiar_M4
+	bounds: 1274, 21, 65, 63
+QS_roleL_hiar_M5
+	bounds: 1631, 1609, 20, 10
+QS_roleL_hiar_M6
+	bounds: 180, 39, 60, 72
+QS_roleL_hiar_M7
+	bounds: 7, 318, 66, 70
+QS_roleL_hiar_M8
+	bounds: 1581, 1281, 32, 25
+QS_roleL_hiar_M9
+	bounds: 1422, 26, 59, 65
+QS_roleL_hiar_M_highlight_1
+	bounds: 525, 57, 77, 34
+QS_roleL_hiar_M_highlight_2
+	bounds: 1641, 1390, 29, 30
+QS_roleL_hiar_M_highlight_3
+	bounds: 1278, 1530, 10, 18
+QS_roleL_hiar_R1
+	bounds: 800, 504, 46, 19
+QS_roleL_hiar_R2
+	bounds: 273, 620, 53, 26
+QS_roleL_hiar_R2111
+	bounds: 1037, 1508, 12, 17
+QS_roleL_hiar_R3
+	bounds: 188, 1580, 9, 39
+	offsets: 0, 0, 9, 46
+QS_roleL_hiar_R4
+	bounds: 1226, 124, 106, 85
+	rotate: 180
+QS_roleL_hiar_R5
+	bounds: 1421, 902, 91, 58
+QS_roleL_hiar_R6
+	bounds: 725, 218, 86, 172
+	rotate: 90
+QS_roleL_hiar_R7
+	bounds: 1423, 1192, 104, 206
+	rotate: 270
+QS_roleL_hiar_R8
+	bounds: 6, 1414, 18, 66
+QS_roleL_hiar_ahoge_1
+	bounds: 425, 20, 50, 62
+QS_roleL_hiar_ahoge_2
+	bounds: 898, 1040, 29, 15
+QS_roleL_leg_L1
+	bounds: 1107, 1138, 135, 198
+	rotate: 270
+QS_roleL_leg_L2
+	bounds: 192, 923, 241, 696
+	rotate: 180
+QS_roleL_leg_L_foot_rosette_1
+	bounds: 235, 37, 41, 70
+QS_roleL_leg_L_foot_rosette_2
+	bounds: 946, 73, 66, 41
+	offsets: 0, 0, 67, 41
+QS_roleL_leg_L_foot_rosette_233
+	bounds: 1380, 430, 128, 177
+	rotate: 90
+QS_roleL_leg_L_foot_rosette_3
+	bounds: 1919, 550, 44, 39
+QS_roleL_leg_L_highlight
+	bounds: 893, 1355, 8, 12
+QS_roleL_leg_L_line_1
+	bounds: 887, 1183, 198, 436
+QS_roleL_leg_L_shadow
+	bounds: 1435, 1239, 205, 380
+	rotate: 180
+QS_roleL_leg_R_1
+	bounds: 1328, 191, 104, 84
+	rotate: 180
+QS_roleL_leg_R_2
+	bounds: 348, 431, 149, 162
+	rotate: 270
+QS_roleL_leg_R_3
+	bounds: 1287, 1142, 152, 477
+	rotate: 180
+QS_roleL_leg_R_highlight
+	bounds: 175, 1579, 7, 40
+QS_roleL_leg_R_line_1
+	bounds: 6, 1189, 30, 430
+QS_roleL_leg_R_line_2
+	bounds: 14, 1196, 67, 423
+	rotate: 180
+QS_roleL_leg_R_shadow
+	bounds: 54, 891, 160, 325
+	rotate: 90
+QS_roleL_leg_clothing_L1
+	bounds: 883, 86, 123, 55
+QS_roleL_leg_clothing_L2
+	bounds: 902, 252, 82, 167
+	rotate: 90
+QS_roleL_leg_clothing_L3
+	bounds: 992, 143, 93, 144
+	offsets: 0, 0, 94, 144
+	rotate: 270
+QS_roleL_leg_clothing_L3_01
+	bounds: 1498, 629, 136, 286
+	offsets: 0, 0, 136, 291
+	rotate: 90
+QS_roleL_leg_clothing_L4
+	bounds: 1194, 328, 128, 98
+QS_roleL_leg_clothing_L5
+	bounds: 64, 136, 121, 60
+QS_roleL_leg_clothing_R1
+	bounds: 44, 301, 91, 120
+	rotate: 90
+QS_roleL_leg_foot_clothing_R1
+	bounds: 1514, 327, 141, 162
+QS_roleL_leg_foot_clothing_R2
+	bounds: 1568, 411, 35, 45
+QS_roleL_leg_foot_clothing_R3
+	bounds: 915, 530, 37, 33
+QS_roleL_leg_foot_clothing_R4
+	bounds: 634, 1502, 106, 117
+QS_roleL_leg_rosette_L1
+	bounds: 1697, 41, 44, 48
+QS_roleL_leg_rosette_L2
+	bounds: 1601, 86, 69, 78
+QS_roleL_leg_rosette_L3
+	bounds: 396, 86, 67, 74
+	rotate: 270
+QS_roleL_mouth_1
+	bounds: 1587, 1603, 39, 16
+QS_roleL_mouth_2
+	bounds: 555, 1599, 43, 20
+QS_roleL_mouth_3
+	bounds: 1144, 1124, 28, 13
+QS_roleL_neck
+	bounds: 1965, 137, 77, 65
+QS_roleL_neck_buttons
+	bounds: 366, 1474, 12, 17
+QS_roleL_neck_collar_1
+	bounds: 1840, 422, 68, 53
+QS_roleL_neck_collar_2
+	bounds: 1205, 515, 52, 52
+QS_roleL_neck_collar_3
+	bounds: 291, 38, 35, 49
+QS_roleL_neck_collar_4
+	bounds: 2016, 1502, 26, 50
+QS_roleL_nose
+	bounds: 1435, 1328, 17, 18
+QS_roleL_sclera_L
+	bounds: 61, 1247, 40, 38
+QS_roleL_skirt_F1_1
+	bounds: 1692, 953, 272, 359
+QS_roleL_skirt_F1_1_01
+	bounds: 474, 867, 29, 44
+QS_roleL_skirt_F1_2
+	bounds: 565, 1165, 103, 89
+QS_roleL_skirt_F1_3
+	bounds: 370, 1372, 73, 127
+QS_roleL_skirt_F1_4
+	bounds: 1617, 703, 272, 244
+QS_roleL_skirt_F1_5
+	bounds: 343, 548, 112, 326
+	rotate: 90
+QS_roleL_skirt_F1_6
+	bounds: 1240, 1522, 50, 97
+QS_roleL_skirt_F1_7
+	bounds: 6, 1087, 23, 42
+QS_roleL_skirt_F1_8
+	bounds: 636, 121, 101, 77
+QS_roleL_skirt_F1_shadow_1
+	bounds: 1651, 46, 48, 76
+QS_roleL_skirt_F1_shadow_2
+	bounds: 1336, 135, 101, 78
+QS_roleL_skirt_F1_shadow_2223
+	bounds: 810, 863, 378, 182
+QS_roleL_skirt_F1_shadow_3
+	bounds: 1761, 37, 47, 53
+QS_roleL_skirt_F2_1
+	bounds: 1798, 592, 244, 206
+QS_roleL_skirt_F2_10
+	bounds: 1866, 1354, 56, 46
+QS_roleL_skirt_F2_11
+	bounds: 42, 1350, 29, 58
+QS_roleL_skirt_F2_112223
+	bounds: 68, 1291, 16, 8
+QS_roleL_skirt_F2_12
+	bounds: 26, 1482, 34, 90
+QS_roleL_skirt_F2_13
+	bounds: 150, 247, 152, 96
+	rotate: 180
+QS_roleL_skirt_F2_14
+	bounds: 39, 1413, 28, 69
+QS_roleL_skirt_F2_2
+	bounds: 1888, 54, 37, 69
+QS_roleL_skirt_F2_3
+	bounds: 1674, 929, 38, 29
+QS_roleL_skirt_F2_4
+	bounds: 1866, 336, 76, 176
+	rotate: 270
+QS_roleL_skirt_F2_5
+	bounds: 327, 294, 171, 103
+	rotate: 180
+QS_roleL_skirt_F2_6
+	bounds: 216, 500, 56, 37
+QS_roleL_skirt_F2_7
+	bounds: 1266, 1458, 20, 61
+QS_roleL_skirt_F2_8
+	bounds: 1458, 165, 55, 129
+	rotate: 90
+QS_roleL_skirt_F2_9
+	bounds: 1255, 273, 170, 79
+QS_roleL_skirt_F3
+	bounds: 1233, 1060, 528, 304
+QS_roleL_skirt_F4
+	bounds: 1596, 1145, 474, 284
+	rotate: 270
+QS_roleL_skirt_acc_1
+	bounds: 1274, 888, 448, 204
+QS_roleL_skirt_acc_2
+	bounds: 216, 400, 188, 92
+QS_roleL_skirt_acc_3
+	bounds: 686, 760, 78, 59
+QS_roleL_skirt_back_1
+	bounds: 1664, 298, 86, 129
+QS_roleL_skirt_back_10
+	bounds: 1431, 218, 101, 90
+QS_roleL_skirt_back_2
+	bounds: 715, 756, 314, 150
+QS_roleL_skirt_back_3
+	bounds: 307, 219, 89, 107
+	rotate: 90
+QS_roleL_skirt_back_4
+	bounds: 883, 909, 26, 26
+QS_roleL_skirt_back_5
+	bounds: 407, 1141, 56, 126
+	rotate: 90
+QS_roleL_skirt_back_6
+	bounds: 1286, 357, 160, 142
+	rotate: 90
+QS_roleL_skirt_back_7
+	bounds: 148, 330, 167, 96
+QS_roleL_skirt_back_8
+	bounds: 640, 423, 226, 83
+QS_roleL_skirt_back_9
+	bounds: 491, 660, 52, 92
+QS_roleL_skirt_back_acc_1
+	bounds: 1517, 257, 59, 52
+QS_roleL_skirt_back_acc_2
+	bounds: 462, 489, 58, 72
+	rotate: 90
+QS_roleL_skirt_back_acc_3
+	bounds: 969, 698, 140, 470
+	rotate: 270
+QS_roleL_skirt_back_belt_L
+	bounds: 1510, 549, 116, 337
+	rotate: 90
+QS_roleL_skirt_back_belt_R
+	bounds: 1013, 540, 278, 198
+	rotate: 180
+QS_roleL_skirt_back_wings_L
+	bounds: 456, 643, 339, 181
+QS_roleL_skirt_back_wings_R
+	bounds: 468, 822, 393, 257
+	rotate: 180
+QS_roleL_waist_acc_L
+	bounds: 102, 86, 52, 72
+QS_roleL_waist_acc_L_shadow
+	bounds: 18, 1576, 10, 22
+QS_roleL_waist_acc_R
+	bounds: 1797, 135, 72, 58
+QS_roleL_waist_acc_R_shadow
+	bounds: 1316, 674, 54, 25
+	offsets: 0, 1, 54, 26
+QS_roleL_waist_clothing_L1
+	bounds: 1729, 490, 33, 43
+QS_roleL_waist_clothing_L2
+	bounds: 1728, 1365, 14, 22
+QS_roleL_waist_clothing_L3
+	bounds: 1381, 36, 53, 50
+QS_roleL_waist_clothing_L4
+	bounds: 1945, 1575, 36, 44
+QS_roleL_waist_clothing_MID
+	bounds: 1226, 608, 90, 93
+	rotate: 270
+QS_roleL_waist_clothing_R
+	bounds: 1651, 216, 156, 60
+QS_roleR_arm_L1
+	bounds: 1168, 238, 90, 113
+	rotate: 270
+QS_roleR_arm_L2
+	bounds: 834, 162, 105, 59
+QS_roleR_arm_L3
+	bounds: 1632, 1282, 102, 152
+	rotate: 180
+QS_roleR_arm_R1
+	bounds: 1942, 201, 82, 100
+	rotate: 270
+QS_roleR_arm_R2
+	bounds: 259, 1063, 63, 135
+QS_roleR_arm_R3
+	bounds: 941, 198, 68, 109
+	rotate: 90
+QS_roleR_arm_R3_shadow
+	bounds: 325, 1589, 21, 30
+QS_roleR_arm_armor_L1
+	bounds: 17, 469, 164, 130
+QS_roleR_arm_armor_L2
+	bounds: 8, 1160, 31, 33
+QS_roleR_arm_armor_L2336
+	bounds: 1999, 1527, 12, 17
+	offsets: 0, 0, 12, 19
+QS_roleR_arm_armor_L3
+	bounds: 170, 1424, 20, 36
+QS_roleR_arm_armor_L4
+	bounds: 299, 973, 31, 60
+QS_roleR_arm_armor_R1
+	bounds: 1650, 931, 134, 130
+QS_roleR_arm_armor_R2
+	bounds: 867, 1574, 53, 45
+QS_roleR_arm_armor_line_R
+	bounds: 1470, 1240, 14, 4
+QS_roleR_arm_armor_shadow_R
+	bounds: 40, 1313, 24, 33
+	offsets: 0, 0, 26, 33
+QS_roleR_arm_belt_L1
+	bounds: 1063, 819, 99, 40
+QS_roleR_arm_belt_L2
+	bounds: 202, 705, 58, 50
+QS_roleR_arm_clothing_L1
+	bounds: 554, 136, 84, 88
+	rotate: 90
+QS_roleR_arm_clothing_L2
+	bounds: 1720, 1345, 14, 18
+QS_roleR_arm_clothing_L3
+	bounds: 1620, 37, 38, 72
+QS_roleR_arm_clothing_L4
+	bounds: 925, 1604, 17, 15
+QS_roleR_arm_clothing_L5
+	bounds: 113, 1609, 12, 10
+QS_roleR_arm_clothing_L6
+	bounds: 6, 940, 34, 30
+QS_roleR_arm_clothing_L7
+	bounds: 1825, 1598, 26, 21
+QS_roleR_arm_clothing_R1
+	bounds: 390, 152, 85, 73
+QS_roleR_arm_clothing_R2
+	bounds: 1294, 1597, 16, 22
+QS_roleR_arm_clothing_R3
+	bounds: 1445, 1606, 21, 13
+QS_roleR_arm_clothing_R4
+	bounds: 2006, 1041, 36, 20
+QS_roleR_arm_clothing_line_R2
+	bounds: 1526, 1246, 19, 10
+QS_roleR_body
+	bounds: 396, 1189, 232, 430
+	rotate: 180
+QS_roleR_body_acc_1
+	bounds: 172, 153, 70, 113
+	rotate: 90
+QS_roleR_body_acc_2
+	bounds: 718, 375, 28, 42
+QS_roleR_body_acc_3
+	bounds: 1052, 956, 83, 102
+	rotate: 90
+QS_roleR_body_acc_4
+	bounds: 640, 156, 86, 104
+	rotate: 270
+QS_roleR_body_acc_5
+	bounds: 128, 44, 36, 47
+QS_roleR_body_acc_6
+	bounds: 1305, 738, 92, 104
+	rotate: 90
+QS_roleR_body_acc_7
+	bounds: 618, 1203, 273, 416
+QS_roleR_body_acc_8
+	bounds: 849, 428, 136, 182
+	rotate: 90
+QS_roleR_body_acc_9
+	bounds: 726, 294, 86, 203
+	rotate: 90
+QS_roleR_body_acc_back_1
+	bounds: 431, 1571, 35, 48
+QS_roleR_body_acc_back_10
+	bounds: 6, 800, 110, 135
+	rotate: 180
+QS_roleR_body_acc_back_2
+	bounds: 1930, 51, 38, 64
+QS_roleR_body_acc_back_3
+	bounds: 427, 1005, 32, 43
+QS_roleR_body_acc_back_4
+	bounds: 1807, 1482, 35, 61
+QS_roleR_body_acc_back_5
+	bounds: 849, 1232, 83, 108
+	rotate: 180
+QS_roleR_body_acc_back_6
+	bounds: 742, 98, 63, 70
+QS_roleR_body_acc_back_7
+	bounds: 1841, 1259, 200, 360
+	rotate: 180
+QS_roleR_body_acc_back_8
+	bounds: 786, 885, 59, 96
+	rotate: 90
+QS_roleR_body_acc_back_9
+	bounds: 1641, 1066, 53, 54
+QS_roleR_body_armor_1
+	bounds: 438, 882, 151, 123
+	rotate: 180
+QS_roleR_body_armor_2
+	bounds: 1931, 1056, 33, 24
+QS_roleR_body_armor_2336
+	bounds: 1180, 999, 69, 104
+	rotate: 90
+QS_roleR_body_armor_3
+	bounds: 1540, 66, 56, 48
+QS_roleR_body_armor_4
+	bounds: 1563, 423, 187, 127
+QS_roleR_body_armor_6
+	bounds: 422, 255, 70, 72
+QS_roleR_body_belt_1
+	bounds: 1016, 13, 109, 80
+QS_roleR_body_belt_2
+	bounds: 846, 19, 97, 73
+QS_roleR_body_belt_3_a
+	bounds: 1529, 1053, 106, 58
+QS_roleR_body_belt_3_b
+	bounds: 1053, 1566, 18, 14
+QS_roleR_body_belt_4
+	bounds: 908, 32, 43, 93
+	rotate: 90
+QS_roleR_face
+	bounds: 952, 496, 186, 134
+QS_roleR_face_line
+	bounds: 611, 6, 179, 118
+	rotate: 180
+QS_roleR_face_shadow_1
+	bounds: 432, 1114, 45, 22
+QS_roleR_face_shadow_2
+	bounds: 607, 804, 33, 19
+QS_roleR_face_shadow_3
+	bounds: 1323, 21, 46, 70
+QS_roleR_hair_1
+	bounds: 674, 30, 37, 97
+QS_roleR_hair_2
+	bounds: 1009, 66, 74, 84
+	rotate: 270
+QS_roleR_hair_3
+	bounds: 634, 1247, 22, 81
+QS_roleR_hair_4
+	bounds: 460, 38, 66, 74
+QS_roleR_hand_2
+	bounds: 822, 1250, 22, 20
+QS_roleR_hand_3
+	bounds: 114, 1444, 26, 18
+QS_roleR_hand_L1
+	bounds: 1875, 126, 64, 98
+QS_roleR_hand_R1
+	bounds: 2012, 892, 30, 26
+QS_roleR_hand_R2
+	bounds: 1750, 1131, 20, 26
+QS_roleR_hand_R3
+	bounds: 776, 960, 35, 27
+QS_roleR_hand_R4
+	bounds: 1009, 1166, 39, 28
+QS_roleR_hand_R5
+	bounds: 1061, 1145, 41, 31
+QS_roleR_hand_R6
+	bounds: 99, 837, 65, 57
+QS_roleR_hand_R7
+	bounds: 1233, 1080, 35, 30
+	offsets: 2, 0, 37, 30
+QS_roleR_hand_R7111
+	bounds: 390, 1324, 25, 54
+QS_roleR_handying_R7
+	bounds: 630, 1522, 10, 10
+QS_roleR_head_eye_L
+	bounds: 410, 380, 37, 53
+QS_roleR_head_eye_R
+	bounds: 1245, 1278, 40, 43
+QS_roleR_head_eye_highlight_L1
+	bounds: 6, 1489, 11, 12
+QS_roleR_head_eye_highlight_L2
+	bounds: 467, 1609, 10, 10
+QS_roleR_head_eye_highlight_L3
+	bounds: 350, 1615, 5, 4
+QS_roleR_head_eye_highlight_L4
+	bounds: 1879, 1346, 11, 9
+QS_roleR_head_eye_highlight_L5
+	bounds: 6, 1283, 14, 12
+QS_roleR_head_eye_highlight_L6
+	bounds: 874, 1555, 6, 13
+QS_roleR_head_eye_highlight_R1
+	bounds: 1385, 1611, 11, 8
+QS_roleR_head_eye_highlight_R2
+	bounds: 1657, 1615, 4, 4
+QS_roleR_head_eye_highlight_R3
+	bounds: 6, 1265, 10, 12
+QS_roleR_head_eye_highlight_R4
+	bounds: 1615, 1313, 12, 9
+QS_roleR_head_eye_highlight_R5
+	bounds: 37, 1295, 14, 12
+QS_roleR_head_eye_highlight_R6
+	bounds: 878, 1535, 5, 14
+QS_roleR_head_eyelash_L
+	bounds: 621, 85, 55, 59
+QS_roleR_head_eyelash_R
+	bounds: 1004, 1573, 70, 46
+QS_roleR_head_flush_L1
+	bounds: 1013, 637, 31, 26
+QS_roleR_head_flush_L2
+	bounds: 1626, 759, 54, 45
+	offsets: 1, 1, 55, 48
+QS_roleR_head_flush_R1
+	bounds: 1275, 1145, 32, 23
+QS_roleR_head_flush_R2
+	bounds: 412, 800, 51, 42
+	offsets: 1, 1, 54, 44
+QS_roleR_head_mouth_1
+	bounds: 1010, 1025, 45, 19
+QS_roleR_head_mouth_2
+	bounds: 303, 493, 47, 22
+QS_roleR_head_mouth_3
+	bounds: 6, 1249, 15, 10
+QS_roleR_head_mouth_4
+	bounds: 1518, 925, 37, 18
+QS_roleR_head_nose
+	bounds: 1895, 754, 24, 24
+QS_roleR_head_sclera_L
+	bounds: 808, 78, 52, 54
+QS_roleR_head_sclera_R
+	bounds: 530, 95, 68, 44
+QS_roleR_head_up_armor_1
+	bounds: 1840, 792, 258, 202
+	rotate: 90
+QS_roleR_head_up_armor_2
+	bounds: 1177, 1109, 66, 40
+QS_roleR_head_up_armor_3
+	bounds: 1656, 84, 88, 166
+	rotate: 270
+QS_roleR_head_up_armor_4
+	bounds: 84, 1439, 24, 180
+	rotate: 180
+QS_roleR_head_up_armor_5
+	bounds: 252, 648, 244, 157
+	rotate: 180
+QS_roleR_head_up_armor_highlight
+	bounds: 6, 1337, 16, 26
+QS_roleR_head_up_sweat
+	bounds: 742, 1547, 8, 11
+QS_roleR_leg_L1
+	bounds: 775, 1038, 206, 453
+	rotate: 90
+QS_roleR_leg_L2
+	bounds: 1392, 311, 113, 146
+	rotate: 270
+QS_roleR_leg_L3
+	bounds: 70, 1558, 14, 61
+QS_roleR_leg_L4
+	bounds: 1487, 587, 28, 38
+QS_roleR_leg_L5
+	bounds: 1045, 1243, 237, 376
+	rotate: 180
+QS_roleR_leg_L6
+	bounds: 773, 609, 144, 235
+	rotate: 90
+QS_roleR_leg_L7
+	bounds: 1415, 724, 32, 26
+QS_roleR_leg_L8
+	bounds: 849, 1018, 45, 51
+QS_roleR_leg_L_shadow
+	bounds: 270, 68, 54, 53
+QS_roleR_leg_R1
+	bounds: 419, 991, 166, 384
+	rotate: 90
+QS_roleR_leg_R2
+	bounds: 105, 719, 189, 371
+	rotate: 90
+QS_roleR_leg_R3
+	bounds: 1056, 309, 106, 132
+	rotate: 90
+QS_roleR_leg_R4
+	bounds: 666, 505, 129, 198
+	rotate: 90
+QS_roleR_leg_R5
+	bounds: 624, 40, 40, 57
+QS_roleR_legying_L5
+	bounds: 252, 1202, 27, 18
+QS_roleR_ponytail_A_1
+	bounds: 1348, 499, 37, 30
+QS_roleR_ponytail_A_2
+	bounds: 588, 955, 42, 38
+QS_roleR_ponytail_A_3
+	bounds: 6, 605, 172, 212
+	rotate: 180
+QS_roleR_ponytail_B_1
+	bounds: 1479, 404, 43, 44
+QS_roleR_ponytail_B_2
+	bounds: 6, 59, 44, 45
+QS_roleR_ponytail_B_3
+	bounds: 1309, 535, 183, 176
+	rotate: 180
+QS_roleR_ponytail_C
+	bounds: 947, 343, 184, 144
+QS_roleR_ponytail_D
+	bounds: 728, 343, 93, 202
+	rotate: 90
+QS_roleR_scarf_1
+	bounds: 1052, 1168, 115, 102
+	rotate: 90
+QS_roleR_scarf_2
+	bounds: 1422, 91, 48, 65
+QS_roleR_scarf_3
+	bounds: 1780, 669, 51, 33
+QS_roleR_scarf_4
+	bounds: 627, 1337, 21, 24
+di_01
+	bounds: 1159, 158, 63, 92

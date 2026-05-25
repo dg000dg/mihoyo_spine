@@ -1,0 +1,537 @@
+千夏.png
+	size: 2048, 2046
+	filter: Linear, Linear
+	scale: 0.4
+QX_Tamagotchi_cat
+	bounds: 495, 2009, 28, 31
+QX_Tamagotchi_cat_1
+	bounds: 400, 2031, 9, 9
+QX_Tamagotchi_cat_2
+	bounds: 6, 1712, 9, 9
+QX_Tamagotchi_cat_3
+	bounds: 58, 1587, 10, 8
+QX_Tamagotchi_cat_4
+	bounds: 467, 1931, 9, 8
+QX_Tamagotchi_cat_5
+	bounds: 56, 1604, 10, 14
+QX_Tamagotchi_heart
+	bounds: 6, 2033, 6, 7
+QX_Tamagotchi_main
+	bounds: 1016, 1165, 108, 129
+	offsets: 0, 2, 110, 131
+QX_Tamagotchi_main_shadow
+	bounds: 592, 1047, 30, 34
+QX_Tamagotchi_shadow
+	bounds: 733, 289, 126, 120
+QX_arm_L_01
+	bounds: 1554, 550, 288, 502
+	rotate: 180
+QX_arm_L_02
+	bounds: 1674, 44, 238, 370
+QX_arm_L_04
+	bounds: 166, 1925, 86, 55
+QX_arm_L_05
+	bounds: 716, 1297, 19, 43
+QX_arm_L_32
+	bounds: 29, 1715, 10, 15
+QX_arm_R2
+	bounds: 308, 815, 137, 129
+	rotate: 90
+QX_bag
+	bounds: 984, 1529, 352, 428
+QX_bag_belt_2
+	bounds: 149, 1197, 56, 56
+QX_bag_belt_3
+	bounds: 953, 1954, 86, 231
+	rotate: 90
+QX_bag_belt_4
+	bounds: 824, 6, 90, 296
+	offsets: 0, 0, 90, 300
+	rotate: 90
+QX_bag_belt_shadow
+	bounds: 6, 1372, 64, 185
+QX_body_01
+	bounds: 6, 1160, 521, 880
+	rotate: 180
+QX_buckle_1
+	bounds: 439, 1865, 26, 86
+QX_buckle_2
+	bounds: 6, 1040, 48, 38
+QX_buckle_4
+	bounds: 6, 1792, 18, 78
+	rotate: 180
+QX_buckle_6
+	bounds: 1322, 1876, 62, 105
+QX_buttons_1
+	bounds: 448, 1841, 16, 19
+QX_buttons_2
+	bounds: 6, 1538, 20, 21
+QX_buttons_3
+	bounds: 416, 1247, 18, 22
+QX_buttons_4
+	bounds: 35, 1442, 17, 21
+QX_buttons_5
+	bounds: 781, 1913, 19, 21
+QX_collar_1
+	bounds: 694, 1157, 67, 134
+QX_collar_2
+	bounds: 1828, 923, 73, 129
+QX_collar_4
+	bounds: 181, 552, 103, 107
+QX_collar_5
+	bounds: 1952, 13, 84, 151
+	rotate: 180
+QX_ear
+	bounds: 445, 1204, 82, 94
+QX_ear_ACC
+	bounds: 6, 1163, 29, 39
+QX_eye_L
+	bounds: 6, 973, 58, 62
+	offsets: 0, 0, 58, 64
+QX_eye_R
+	bounds: 6, 1727, 41, 62
+QX_eye_highlight_L1
+	bounds: 997, 2022, 17, 18
+QX_eye_highlight_L2
+	bounds: 1000, 1935, 19, 19
+QX_eye_highlight_L3
+	bounds: 75, 1975, 10, 9
+QX_eye_highlight_L4
+	bounds: 32, 1553, 8, 6
+QX_eye_highlight_L5
+	bounds: 60, 1952, 10, 11
+QX_eye_highlight_R1
+	bounds: 786, 1889, 15, 18
+QX_eye_highlight_R2
+	bounds: 283, 1997, 9, 9
+QX_eye_highlight_R3
+	bounds: 484, 1528, 16, 16
+QX_eye_highlight_R4
+	bounds: 61, 1924, 7, 7
+QX_eye_highlight_R5
+	bounds: 62, 2029, 8, 7
+QX_eyebrow_L
+	bounds: 45, 1826, 88, 22
+	rotate: 270
+QX_eyebrow_R
+	bounds: 832, 1985, 65, 50
+	offsets: 0, 9, 65, 59
+QX_eyelash_L1
+	bounds: 131, 2029, 15, 11
+	offsets: 0, 0, 18, 11
+QX_eyelash_L2
+	bounds: 58, 1969, 54, 13
+	rotate: 90
+QX_eyelashes_L1
+	bounds: 164, 25, 116, 39
+	offsets: 0, 0, 121, 39
+QX_eyelashes_L2
+	bounds: 324, 2034, 16, 6
+QX_eyelashes_L3
+	bounds: 448, 1831, 15, 4
+QX_eyelashes_L4
+	bounds: 188, 1886, 14, 6
+QX_eyelashes_L5
+	bounds: 210, 1189, 45, 26
+QX_eyelashes_L6
+	bounds: 53, 1561, 10, 8
+QX_eyelashes_L7
+	bounds: 154, 1951, 9, 8
+QX_eyelashes_L8
+	bounds: 815, 281, 97, 28
+	offsets: 0, 2, 97, 30
+QX_eyelashes_R1
+	bounds: 33, 1876, 11, 8
+QX_eyelashes_R2
+	bounds: 1952, 1170, 88, 57
+QX_eyelashes_R3
+	bounds: 41, 1796, 20, 19
+QX_eyelashes_R4
+	bounds: 61, 1937, 11, 9
+QX_eyelashes_R5
+	bounds: 36, 1468, 22, 38
+QX_eyelashes_R6
+	bounds: 463, 1945, 12, 6
+QX_eyelashes_R7
+	bounds: 58, 1576, 11, 5
+QX_eyelashes_R711
+	bounds: 1435, 1224, 70, 64
+	offsets: 0, 2, 70, 66
+QX_eyelid_L
+	bounds: 1023, 2016, 83, 24
+QX_eyelid_R1
+	bounds: 970, 1181, 43, 53
+QX_eyelid_R2
+	bounds: 6, 463, 69, 56
+QX_eyelid_R3
+	bounds: 663, 172, 78, 64
+QX_face
+	bounds: 1328, 1605, 358, 435
+	rotate: 180
+QX_hair_ACC_1
+	bounds: 1616, 896, 50, 35
+QX_hair_ACC_1_shadow
+	bounds: 115, 541, 52, 37
+QX_hair_ACC_2
+	bounds: 261, 7, 83, 27
+QX_hair_ACC_2_shadow
+	bounds: 1928, 1710, 86, 32
+	offsets: 1, 0, 87, 32
+QX_hair_ACC_3
+	bounds: 1685, 1258, 80, 28
+QX_hair_ACC_4
+	bounds: 77, 1991, 48, 49
+QX_hair_L_1
+	bounds: 1874, 1919, 73, 121
+QX_hair_L_2
+	bounds: 1757, 1057, 248, 543
+	offsets: 0, 26, 250, 569
+QX_hair_L_4_a
+	bounds: 1428, 1293, 124, 327
+	offsets: 0, 0, 124, 328
+QX_hair_L_4_b
+	bounds: 738, 1157, 44, 30
+QX_hair_L_7
+	bounds: 1493, 646, 94, 109
+QX_hair_L_8
+	bounds: 782, 432, 79, 86
+QX_hair_Lying_4_a
+	bounds: 693, 2021, 36, 19
+QX_hair_R_1
+	bounds: 1974, 538, 62, 123
+QX_hair_R_3
+	bounds: 1032, 1326, 114, 208
+QX_hair_R_4
+	bounds: 724, 1940, 113, 100
+QX_hair_R_5
+	bounds: 412, 483, 36, 58
+QX_hair_back_1
+	bounds: 1051, 628, 455, 324
+	rotate: 180
+QX_hair_back_111
+	bounds: 1870, 352, 163, 233
+	rotate: 180
+QX_hair_back_2
+	bounds: 1011, 126, 253, 419
+	rotate: 90
+QX_hair_m_1
+	bounds: 1775, 1144, 100, 290
+QX_hair_m_3
+	bounds: 1919, 1749, 117, 291
+QX_hair_m_8
+	bounds: 818, 784, 144, 230
+	rotate: 270
+QX_hair_shadow_1
+	bounds: 23, 1889, 33, 151
+	offsets: 0, 1, 33, 152
+QX_hair_shadow_2
+	bounds: 1336, 1547, 69, 128
+QX_hair_shadow_3
+	bounds: 602, 8, 106, 195
+	rotate: 90
+QX_hair_shadow_4
+	bounds: 6, 1564, 46, 144
+QX_hair_shadow_5
+	bounds: 437, 1435, 69, 113
+QX_hand_L_01
+	bounds: 443, 887, 127, 49
+QX_hand_L_02
+	bounds: 644, 203, 119, 80
+	rotate: 270
+QX_hand_R1
+	bounds: 550, 1115, 67, 34
+QX_hand_R10
+	bounds: 6, 1082, 44, 74
+	offsets: 0, 4, 44, 78
+QX_hand_R11
+	bounds: 693, 493, 109, 135
+	offsets: 0, 0, 109, 136
+	rotate: 180
+QX_hand_R2
+	bounds: 674, 619, 84, 56
+QX_hand_R3
+	bounds: 6, 267, 76, 60
+QX_hand_R4
+	bounds: 390, 390, 58, 64
+QX_hand_R5
+	bounds: 1234, 1101, 60, 29
+QX_hand_R6
+	bounds: 1022, 1513, 34, 43
+QX_hand_R61111
+	bounds: 652, 54, 229, 479
+	rotate: 90
+QX_hand_R7
+	bounds: 435, 1643, 42, 86
+QX_hand_R8
+	bounds: 6, 918, 30, 50
+QX_hand_R9
+	bounds: 487, 1294, 40, 41
+QX_leg_L_1
+	bounds: 1568, 1289, 265, 484
+	rotate: 180
+QX_leg_L_3
+	bounds: 740, 1156, 298, 884
+QX_leg_L_bag_1
+	bounds: 1867, 1592, 114, 168
+	rotate: 90
+QX_leg_L_bag_2
+	bounds: 1740, 1076, 62, 54
+QX_leg_L_bag_3
+	bounds: 6, 729, 46, 52
+QX_leg_L_shoes_1
+	bounds: 1338, 1984, 84, 56
+QX_leg_L_shoes_2
+	bounds: 6, 328, 247, 405
+	rotate: 90
+QX_leg_R_1
+	bounds: 593, 917, 260, 635
+	rotate: 90
+QX_leg_R_2
+	bounds: 469, 1150, 314, 890
+	rotate: 180
+QX_leg_R_3
+	bounds: 1673, 1672, 258, 368
+	rotate: 180
+QX_leg_R_shoes_1
+	bounds: 1398, 1502, 59, 59
+	offsets: 0, 0, 59, 62
+QX_leg_R_shoes_2
+	bounds: 329, 107, 276, 317
+	rotate: 270
+QX_line_arm_L_03
+	bounds: 1074, 506, 128, 175
+	rotate: 270
+QX_line_body
+	bounds: 6, 1807, 38, 233
+QX_line_face
+	bounds: 1098, 1122, 359, 438
+	offsets: 0, 5, 359, 443
+	rotate: 180
+QX_mouth_1
+	bounds: 620, 1141, 46, 15
+QX_mouth_2
+	bounds: 1112, 2020, 46, 20
+QX_mouth_3
+	bounds: 177, 1898, 39, 22
+	offsets: 2, 3, 41, 25
+QX_mouth_4
+	bounds: 232, 1980, 46, 22
+QX_neck
+	bounds: 1509, 6, 144, 194
+	rotate: 90
+QX_nose
+	bounds: 258, 1967, 9, 9
+QX_pocket
+	bounds: 1224, 1947, 93, 112
+	rotate: 90
+QX_ponytail_2
+	bounds: 1031, 543, 60, 82
+QX_ponytail_4
+	bounds: 6, 7, 91, 202
+	offsets: 0, 0, 139, 202
+	rotate: 270
+QX_ponytail_5
+	bounds: 58, 1821, 29, 49
+QX_ponytail_6
+	bounds: 1390, 44, 339, 502
+QX_ponytail_7
+	bounds: 1810, 24, 232, 334
+QX_ponytail_8
+	bounds: 1158, 287, 73, 98
+QX_sclera_L
+	bounds: 782, 854, 87, 51
+QX_sclera_R
+	bounds: 1039, 862, 64, 59
+QX_shadow_tie_1
+	bounds: 67, 1874, 252, 166
+QX_shadow_tie_2
+	bounds: 437, 1749, 22, 70
+	offsets: 6, 0, 28, 70
+QX_skirt_1
+	bounds: 59, 915, 610, 328
+	rotate: 180
+QX_skirt_1011
+	bounds: 1193, 354, 385, 290
+QX_skirt_2
+	bounds: 1723, 423, 309, 234
+	rotate: 90
+QX_skirt_3
+	bounds: 294, 12, 304, 130
+	rotate: 180
+QX_skirt_6skirt_8
+	bounds: 1331, 915, 412, 393
+	rotate: 180
+QX_skirt_6skirt_9111
+	bounds: 1830, 667, 203, 304
+QX_skirt_9
+	bounds: 362, 635, 427, 276
+QX_skirt_back_1
+	bounds: 1201, 943, 115, 152
+QX_skirt_back_2
+	bounds: 1803, 1431, 76, 80
+	offsets: 0, 0, 77, 80
+QX_tie_2
+	bounds: 1129, 14, 261, 166
+	rotate: 180
+QX_tie_4
+	bounds: 1999, 1414, 37, 134
+	offsets: 1, 0, 38, 134
+QX_waist_belt_shadow
+	bounds: 1182, 1997, 30, 43
+QX_weapon_1
+	bounds: 769, 522, 280, 344
+QX_weapon_111
+	bounds: 6, 525, 106, 207
+QX_weapon_2
+	bounds: 538, 291, 103, 77
+QX_weapon_3
+	bounds: 1875, 974, 161, 193
+	rotate: 180
+QX_weapon_4
+	bounds: 615, 945, 47, 46
+QX_weapon_5
+	bounds: 415, 1956, 84, 84
+QX_weapon_6
+	bounds: 1424, 251, 139, 134
+	rotate: 90
+QX_weapon_7
+	bounds: 856, 270, 267, 332
+	rotate: 270
+QX_weapon_8
+	bounds: 1484, 762, 153, 155
+QX_weapon_9
+	bounds: 27, 43, 303, 306
+	offsets: 10, 0, 313, 306
+QX_weapon_rosette_3
+	bounds: 268, 291, 56, 61
+QX_weapon_rosette_4
+	bounds: 1681, 1758, 59, 72
+QX_wings_L
+	bounds: 420, 326, 416, 317
+	rotate: 180
+QX_wings_R
+	bounds: 6, 547, 439, 435
+	rotate: 270
+weapon_10
+	bounds: 426, 1546, 68, 91
+
+千夏_2.png
+	size: 2006, 646
+	filter: Linear, Linear
+	scale: 0.4
+QX_Tamagotchi_rosette_1
+	bounds: 1404, 174, 249, 226
+QX_Tamagotchi_rosette_2
+	bounds: 248, 145, 243, 183
+	rotate: 180
+QX_arm_L_03
+	bounds: 1770, 97, 137, 212
+	rotate: 90
+QX_arm_R2111
+	bounds: 719, 260, 179, 291
+	offsets: 0, 3, 179, 294
+	rotate: 270
+QX_arm_R4
+	bounds: 6, 542, 114, 98
+QX_bag_belt_1
+	bounds: 25, 109, 152, 225
+	rotate: 90
+QX_body_02
+	bounds: 853, 88, 192, 204
+	rotate: 270
+QX_clothing_1
+	bounds: 346, 110, 121, 252
+	rotate: 90
+QX_collar_3
+	bounds: 1091, 51, 130, 171
+	offsets: 3, 0, 133, 171
+QX_hair_L_3
+	bounds: 458, 6, 125, 248
+	offsets: 4, 0, 129, 248
+	rotate: 270
+QX_hair_L_5
+	bounds: 1739, 52, 123, 182
+	rotate: 270
+QX_hair_L_6
+	bounds: 283, 405, 235, 610
+	rotate: 90
+QX_hair_R_2
+	bounds: 531, 571, 69, 205
+	rotate: 90
+QX_hair_back_3
+	bounds: 1151, 224, 212, 247
+	rotate: 90
+QX_hair_m_2
+	bounds: 1163, 304, 120, 131
+	rotate: 90
+QX_hair_m_4
+	bounds: 171, 290, 190, 518
+	rotate: 270
+QX_hair_m_6
+	bounds: 460, 518, 122, 298
+	rotate: 90
+QX_hair_m_7
+	bounds: 1186, 112, 170, 240
+	rotate: 270
+QX_leg_L_2
+	bounds: 6, 346, 286, 294
+QX_leg_L_4
+	bounds: 981, 164, 164, 186
+	offsets: 0, 8, 164, 194
+QX_leg_L_rosette
+	bounds: 272, 12, 96, 141
+	offsets: 2, 0, 98, 141
+QX_line_arm_L_01
+	bounds: 1354, 42, 114, 107
+	offsets: 0, 9, 114, 116
+	rotate: 180
+QX_ponytail_1
+	bounds: 481, 157, 231, 351
+	rotate: 90
+QX_ponytail_3
+	bounds: 1586, 235, 196, 348
+	offsets: 0, 4, 196, 352
+	rotate: 90
+QX_ponytail_acc
+	bounds: 764, 386, 254, 449
+	rotate: 90
+QX_r_m_5
+	bounds: 668, 48, 108, 276
+	rotate: 90
+QX_shadow_tie_211
+	bounds: 1807, 198, 242, 178
+	rotate: 90
+QX_skirt_10
+	bounds: 1583, 380, 231, 260
+QX_skirt_4
+	bounds: 1376, 373, 267, 220
+	rotate: 270
+QX_skirt_5
+	bounds: 1573, 112, 149, 207
+	offsets: 0, 0, 153, 207
+	rotate: 270
+QX_skirt_6
+	bounds: 1784, 414, 226, 216
+	offsets: 6, 0, 232, 228
+	rotate: 90
+QX_skirt_6skirt_9
+	bounds: 1112, 421, 261, 219
+QX_tie_1
+	bounds: 1413, 40, 139, 240
+	rotate: 270
+QX_tie_3
+	bounds: 47, 8, 135, 155
+QX_waist_belt
+	bounds: 19, 216, 463, 178
+	offsets: 0, 0, 467, 178
+QX_weapon_rosette_1
+	bounds: 1641, 28, 108, 130
+	rotate: 270
+QX_weapon_rosette_2
+	bounds: 557, 70, 158, 116
+	rotate: 180
+weapon_11
+	bounds: 123, 50, 130, 163
+	rotate: 90
+weapon_rosette_5
+	bounds: 373, 31, 104, 93

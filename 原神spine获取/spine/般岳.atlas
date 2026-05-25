@@ -1,0 +1,259 @@
+般岳.png
+	size: 1064, 2040
+	filter: Linear, Linear
+	scale: 0.3
+body_01
+	bounds: 609, 1994, 55, 43
+body_02
+	bounds: 1002, 1131, 53, 62
+face_01
+	bounds: 829, 1594, 117, 114
+	rotate: 270
+face_02
+	bounds: 800, 18, 168, 149
+	rotate: 90
+face_03
+	bounds: 945, 1364, 120, 83
+	rotate: 270
+hair_01
+	bounds: 992, 1396, 79, 69
+	rotate: 270
+hair_02
+	bounds: 1009, 1076, 49, 25
+hair_03
+	bounds: 1021, 1925, 28, 112
+hair_04
+	bounds: 316, 914, 34, 76
+hair_05
+	bounds: 678, 1879, 142, 158
+hair_06
+	bounds: 868, 1540, 46, 23
+hair_07
+	bounds: 918, 1452, 66, 167
+	rotate: 180
+hair_08
+	bounds: 921, 1250, 122, 71
+	rotate: 90
+hair_09
+	bounds: 876, 452, 80, 152
+hair_10
+	bounds: 836, 1102, 106, 97
+hair_11
+	bounds: 993, 1654, 59, 101
+	rotate: 180
+hair_12
+	bounds: 3, 1267, 217, 65
+	rotate: 90
+hair_13
+	bounds: 967, 680, 50, 114
+hair_14
+	bounds: 1009, 620, 80, 46
+	rotate: 90
+hair_15
+	bounds: 1019, 399, 33, 117
+hair_16
+	bounds: 820, 1962, 141, 75
+	rotate: 180
+hair_17
+	bounds: 1001, 530, 45, 88
+hair_18
+	bounds: 966, 270, 47, 136
+hair_19
+	bounds: 1007, 313, 81, 48
+	rotate: 90
+hair_20
+	bounds: 942, 1100, 54, 145
+	rotate: 180
+qiu_02
+	bounds: 837, 1312, 101, 103
+qiu_03
+	bounds: 854, 1722, 103, 100
+	rotate: 270
+qiu_04
+	bounds: 819, 1437, 103, 102
+qiu_05
+	bounds: 816, 728, 105, 106
+qiu_06
+	bounds: 810, 1198, 110, 109
+qiu_07
+	bounds: 807, 992, 116, 111
+qiu_08
+	bounds: 805, 207, 114, 118
+	rotate: 180
+shangsheng_01
+	bounds: 191, 1420, 617, 506
+	rotate: 90
+xiasheng_01
+	bounds: 3, 811, 247, 1226
+xiasheng_02
+	bounds: 227, 385, 336, 1046
+xiasheng_03
+	bounds: 208, 21, 166, 524
+	rotate: 270
+xiasheng_04
+	bounds: 806, 1831, 128, 103
+	rotate: 90
+xiasheng_05
+	bounds: 3, 2008, 74, 29
+xiasheng_06
+	bounds: 3, 1960, 20, 44
+xiasheng_07
+	bounds: 838, 839, 86, 131
+xiasheng_08
+	bounds: 681, 1534, 187, 98
+	rotate: 180
+yifu_01
+	bounds: 252, 905, 338, 111
+	rotate: 90
+yifu_02
+	bounds: 985, 1489, 53, 88
+	rotate: 180
+yifu_03
+	bounds: 999, 1761, 60, 24
+yifu_04
+	bounds: 213, 1410, 53, 17
+	rotate: 90
+yifu_05
+	bounds: 3, 1584, 69, 23
+	rotate: 90
+yifu_06
+	bounds: 3, 1500, 67, 21
+	rotate: 90
+yifu_07
+	bounds: 986, 1583, 60, 33
+yifu_08
+	bounds: 1005, 1625, 55, 24
+yifu_09
+	bounds: 964, 437, 88, 50
+	rotate: 90
+yifu_10
+	bounds: 715, 1838, 86, 36
+yifu_11
+	bounds: 979, 822, 81, 98
+yifu_12
+	bounds: 3, 1659, 161, 40
+	rotate: 90
+yifu_13
+	bounds: 993, 1206, 55, 100
+yifu_14
+	bounds: 335, 995, 37, 50
+yifu_15
+	bounds: 349, 1166, 99, 36
+	rotate: 90
+yifu_16
+	bounds: 907, 1811, 151, 71
+	rotate: 270
+yifu_17
+	bounds: 1007, 939, 77, 46
+	rotate: 90
+yifu_18
+	bounds: 691, 673, 141, 344
+yifu_19
+	bounds: 226, 1821, 23, 37
+yifu_20
+	bounds: 728, 960, 100, 300
+yifu_21
+	bounds: 213, 169, 158, 449
+	rotate: 270
+yifu_22
+	bounds: 360, 1908, 18, 35
+youdabi
+	bounds: 524, 897, 400, 190
+	rotate: 90
+youjian_01
+	bounds: 969, 883, 128, 38
+	rotate: 90
+youjian_02
+	bounds: 782, 558, 177, 93
+	rotate: 270
+youjian_03
+	bounds: 703, 1514, 61, 31
+youjian_04
+	bounds: 964, 1900, 115, 55
+	rotate: 90
+youshou_01
+	bounds: 985, 167, 110, 44
+	rotate: 270
+youshou_02
+	bounds: 956, 529, 145, 47
+	rotate: 270
+youshou_03
+	bounds: 174, 1752, 155, 50
+	rotate: 90
+youshou_04
+	bounds: 3, 1112, 150, 42
+	rotate: 90
+youshou_05
+	bounds: 954, 3, 133, 52
+	rotate: 90
+youshou_06
+	bounds: 954, 1626, 168, 45
+	rotate: 90
+youshou_07
+	bounds: 702, 25, 138, 125
+	rotate: 90
+youshou_08
+	bounds: 569, 1296, 128, 50
+	rotate: 90
+youshou_09
+	bounds: 893, 134, 95, 95
+	rotate: 270
+youshou_10
+	bounds: 997, 1331, 40, 32
+youxiaobi_01
+	bounds: 3, 300, 212, 332
+	rotate: 270
+youxiaobi_02
+	bounds: 675, 1628, 176, 205
+	rotate: 180
+youxuanlun
+	bounds: 363, 1960, 77, 61
+	rotate: 90
+youyan
+	bounds: 3, 1415, 14, 34
+zuobi_01
+	bounds: 923, 875, 50, 192
+zuobi_02
+	bounds: 634, 1266, 236, 199
+	rotate: 90
+zuobi_03
+	bounds: 1019, 734, 29, 77
+zuobi_04
+	bounds: 806, 341, 89, 167
+	rotate: 180
+zuobi_05
+	bounds: 913, 285, 55, 162
+zuobi_06
+	bounds: 463, 323, 445, 247
+	rotate: 270
+zuobi_07
+	bounds: 643, 170, 166, 271
+	rotate: 180
+zuobi_08
+	bounds: 1010, 97, 72, 44
+	rotate: 90
+zuobi_09
+	bounds: 771, 1505, 36, 23
+zuobi_10
+	bounds: 994, 6, 77, 53
+	rotate: 90
+zuobi_11
+	bounds: 972, 1790, 62, 90
+zuobi_12
+	bounds: 969, 1031, 95, 61
+	rotate: 90
+zuobi_13
+	bounds: 720, 446, 114, 146
+zuobi_14
+	bounds: 241, 1240, 88, 82
+zuobi_15
+	bounds: 214, 1864, 169, 146
+	rotate: 90
+zuobi_16
+	bounds: 887, 609, 158, 73
+	rotate: 90
+zuoxuanlun
+	bounds: 917, 786, 84, 79
+	rotate: 90
+zuoyan
+	bounds: 334, 2025, 30, 12
