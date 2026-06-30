@@ -9,8 +9,6 @@ const ROOT = __dirname;
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 3770);
 const SESSION_TTL_MS = 30 * 60 * 1000;
-const REGENERATOR_RUNTIME_CDN = "https://cdn.jsdelivr.net/npm/regenerator-runtime@0.14.1/runtime.min.js";
-const GIF_WORKER_CDN_URL = "https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js";
 const EDGE_EXECUTABLE_PATHS = [
   process.env.EDGE_PATH,
   process.env.BROWSER_PATH,
@@ -243,16 +241,6 @@ async function fetchHtml(targetUrl) {
     throw new Error(`Failed to fetch activity page: ${response.status} ${response.statusText}`);
   }
   return response.text();
-}
-
-async function proxyRemoteScript(res, scriptUrl) {
-  const response = await fetch(scriptUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch remote script: ${response.status} ${response.statusText}`);
-  }
-
-  const scriptText = await response.text();
-  sendText(res, 200, scriptText, "application/javascript; charset=utf-8");
 }
 
 function dataUrlToBuffer(dataUrl) {
@@ -1296,7 +1284,7 @@ async function collectResources(targetUrl) {
   try {
     const html = await fetchHtml(targetUrl);
     await page.goto(runnerUrl, { waitUntil: "domcontentloaded" });
-    await page.addScriptTag({ url: REGENERATOR_RUNTIME_CDN });
+    await page.addScriptTag({ path: path.join(ROOT, "vendor", "regenerator-runtime.js") });
     await page.addScriptTag({ path: path.join(ROOT, "extractor-core.js") });
 
     return await page.evaluate(async ({ sourceHtml, url }) => {
@@ -1481,6 +1469,22 @@ function serveStatic(req, res) {
   fs.createReadStream(filePath).pipe(res);
 }
 
+// 提供本地 GIF worker 静态文件。
+function serveGifWorker(res) {
+  const filePath = path.join(ROOT, "vendor", "gif.worker.js");
+  if (!fs.existsSync(filePath)) {
+    sendText(res, 404, "Not found.");
+    return;
+  }
+
+  res.writeHead(200, {
+    "Content-Type": "application/javascript; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+
+  fs.createReadStream(filePath).pipe(res);
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const requestUrl = new URL(req.url, "http://127.0.0.1");
@@ -1495,16 +1499,16 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && requestUrl.pathname === "/vendor/gif.worker.js") {
+      serveGifWorker(res);
+      return;
+    }
+
     if (req.method === "GET" && requestUrl.pathname === "/api/health") {
       sendJson(res, 200, {
         ok: true,
         sessions: sessionStore.size
       });
-      return;
-    }
-
-    if (req.method === "GET" && requestUrl.pathname === "/vendor/gif.worker.js") {
-      await proxyRemoteScript(res, GIF_WORKER_CDN_URL);
       return;
     }
 

@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spine 提取预览器</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="https://esotericsoftware.com/files/branding/spine_badge.png">
-  <link rel="shortcut icon" href="https://esotericsoftware.com/files/branding/spine_badge.png">
-  <link rel="apple-touch-icon" href="https://esotericsoftware.com/files/branding/spine_badge.png">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/EsotericSoftware/spine-runtimes@3.8/spine-ts/player/css/spine-player.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.2.73/dist/spine-player.min.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="./vendor/spine_badge.png">
+  <link rel="shortcut icon" href="./vendor/spine_badge.png">
+  <link rel="apple-touch-icon" href="./vendor/spine_badge.png">
+  <link rel="stylesheet" href="./vendor/spine-player-3.8.css">
+  <link rel="stylesheet" href="./vendor/spine-player-4.2.73.css">
   <style>
     :root {
       --bg-0: #eaf7ff;
@@ -202,7 +202,7 @@
       width: 24px;
       height: 24px;
       display: block;
-      background-image: url("https://genshin.hoyoverse.com/favicon.ico");
+      background-image: url("./vendor/genshin-favicon.ico");
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
@@ -1660,31 +1660,31 @@
     </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/gh/EsotericSoftware/spine-runtimes@3.8/spine-ts/build/spine-player.js"></script>
+  <script src="./vendor/spine-player-3.8.js"></script>
   <script>
     window.SpineRuntimeRegistry = window.SpineRuntimeRegistry || {};
     window.SpineRuntimeRegistry["3.8"] = window.spine || window.SpineRuntimeRegistry["3.8"];
     window.spine = void 0;
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.0.30/dist/iife/spine-player.min.js"></script>
+  <script src="./vendor/spine-player-4.0.30.js"></script>
   <script>
     window.SpineRuntimeRegistry = window.SpineRuntimeRegistry || {};
     window.SpineRuntimeRegistry["4.0"] = window.spine || window.SpineRuntimeRegistry["4.0"];
     window.spine = void 0;
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.1.24/dist/iife/spine-player.min.js"></script>
+  <script src="./vendor/spine-player-4.1.24.js"></script>
   <script>
     window.SpineRuntimeRegistry = window.SpineRuntimeRegistry || {};
     window.SpineRuntimeRegistry["4.1"] = window.spine || window.SpineRuntimeRegistry["4.1"];
     window.spine = void 0;
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@esotericsoftware/spine-player@4.2.73/dist/iife/spine-player.min.js"></script>
+  <script src="./vendor/spine-player-4.2.73.js"></script>
   <script>
     window.SpineRuntimeRegistry = window.SpineRuntimeRegistry || {};
     window.SpineRuntimeRegistry["4.2"] = window.spine || window.SpineRuntimeRegistry["4.2"];
     window.spine = void 0;
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+  <script src="./vendor/gif.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
