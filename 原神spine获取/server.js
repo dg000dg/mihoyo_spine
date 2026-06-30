@@ -414,6 +414,69 @@ function extractAtlasPageSizes(atlasText) {
   return sizes;
 }
 
+// 读取 atlas 中声明的整体缩放比例。
+function extractAtlasScale(atlasText) {
+  if (typeof atlasText !== "string") {
+    return 1;
+  }
+
+  const scaleMatch = atlasText.match(/(?:^|\n)\s*scale:\s*([0-9.]+)\s*(?:\r?\n|$)/i);
+  const scale = Number(scaleMatch && scaleMatch[1]);
+  return Number.isFinite(scale) && scale > 0 && scale < 1 ? scale : 1;
+}
+
+// 读取 root 下一层骨骼的统一缩放比例。
+function extractRootChildScale(data) {
+  const bones = data && Array.isArray(data.bones) ? data.bones : [];
+  const rootChild = bones.find((bone) => {
+    return bone
+      && bone.parent === "root"
+      && Number.isFinite(Number(bone.scaleX))
+      && Number.isFinite(Number(bone.scaleY));
+  });
+
+  if (!rootChild) {
+    return 1;
+  }
+
+  const scaleX = Math.abs(Number(rootChild.scaleX));
+  const scaleY = Math.abs(Number(rootChild.scaleY));
+  if (scaleX <= 0 || scaleY <= 0 || scaleX >= 1 || scaleY >= 1) {
+    return 1;
+  }
+
+  return Math.min(scaleX, scaleY);
+}
+
+// 判断 skeleton 边界是否需要按导出缩放折算。
+function pickSkeletonViewportScale(data, atlasText, skeletonWidth, skeletonHeight) {
+  const pageSizes = extractAtlasPageSizes(atlasText);
+  const maxPageWidth = Math.max(0, ...pageSizes.map((size) => Number(size.width || 0)));
+  const maxPageHeight = Math.max(0, ...pageSizes.map((size) => Number(size.height || 0)));
+
+  if (!maxPageWidth || !maxPageHeight || skeletonWidth <= 0 || skeletonHeight <= 0) {
+    return 1;
+  }
+
+  const isOversized = skeletonWidth > maxPageWidth * 1.25 || skeletonHeight > maxPageHeight * 1.25;
+  if (!isOversized) {
+    return 1;
+  }
+
+  const candidates = [extractRootChildScale(data), extractAtlasScale(atlasText)]
+    .filter((scale) => Number.isFinite(scale) && scale > 0 && scale < 1);
+
+  for (const scale of candidates) {
+    const scaledWidth = skeletonWidth * scale;
+    const scaledHeight = skeletonHeight * scale;
+    if (scaledWidth <= maxPageWidth * 1.25 && scaledHeight <= maxPageHeight * 1.25) {
+      return scale;
+    }
+  }
+
+  return 1;
+}
+
 function extractPreferredRenderSize(jsonText, atlasText) {
   let width = 0;
   let height = 0;
@@ -430,16 +493,19 @@ function extractPreferredRenderSize(jsonText, atlasText) {
     const skeletonHeight = Number(skeleton && skeleton.height || 0);
     const skeletonX = Number(skeleton && skeleton.x);
     const skeletonY = Number(skeleton && skeleton.y);
+    const viewportScale = pickSkeletonViewportScale(data, atlasText, skeletonWidth, skeletonHeight);
+    const adjustedSkeletonWidth = skeletonWidth * viewportScale;
+    const adjustedSkeletonHeight = skeletonHeight * viewportScale;
 
-    width = Math.max(width, Math.round(skeletonWidth || 0));
-    height = Math.max(height, Math.round(skeletonHeight || 0));
+    width = Math.max(width, Math.round(adjustedSkeletonWidth || 0));
+    height = Math.max(height, Math.round(adjustedSkeletonHeight || 0));
 
     if (Number.isFinite(skeletonX) && Number.isFinite(skeletonY) && skeletonWidth > 0 && skeletonHeight > 0) {
-      x = skeletonX;
-      y = skeletonY;
-      viewportWidth = skeletonWidth;
-      viewportHeight = skeletonHeight;
-      hasViewportOrigin = true;
+      x = skeletonX * viewportScale;
+      y = skeletonY * viewportScale;
+      viewportWidth = adjustedSkeletonWidth;
+      viewportHeight = adjustedSkeletonHeight;
+      hasViewportOrigin = viewportScale === 1;
     }
   } catch {
   }
