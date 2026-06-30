@@ -3,8 +3,7 @@
 
   const runtimeRegistry = window.SpineRuntimeRegistry || {};
   const defaultRuntimeOrder = ["4.2", "4.1", "4.0", "3.8"];
-  const INITIAL_LOAD_COUNT = 8;
-  const MAX_ACTIVE_PLAYERS = 8;
+  const DEFAULT_PLAYER_LOAD_BUDGET = 8;
   const MAX_CONCURRENT_LOADS = 2;
   const IDLE_CARD_MESSAGE = "鼠标悬停预览动画。";
   const GIF_WORKER_SCRIPT_URL = "/vendor/gif.worker.js";
@@ -55,6 +54,7 @@
     isBusy: false,
     loadQueue: [],
     loadingCount: 0,
+    playerLoadBudget: 0,
     activeModalCardId: "",
     statusMessage: "等待提取。",
     statusTone: "idle",
@@ -103,6 +103,7 @@
     renderExportProgressState();
     updateBadges();
     applyActivityPickerWidth();
+    syncPlayerLoadBudget();
     startFrameSyncLoop();
   }
 
@@ -190,6 +191,8 @@
   }
 
   function handleWindowResize() {
+    syncPlayerLoadBudget();
+
     if (state.activityPickerResizePointerId >= 0) {
       state.activityPickerWidth = clampActivityPickerWidth(window.innerWidth - Math.max(window.innerWidth - state.activityPickerWidth, 0));
     } else if (state.activityPickerWidth) {
@@ -2014,18 +2017,12 @@
       state.cards.set(group.id, card);
       dom.gridContainer.appendChild(card.root);
     });
+
+    syncPlayerLoadBudget();
   }
 
   function queueInitialCards() {
-    const initialCards = Array.from(state.cards.values()).slice(0, INITIAL_LOAD_COUNT);
-    const now = Date.now();
-
-    initialCards.forEach((card, index) => {
-      card.isVisible = true;
-      card.lastVisibleAt = now + index;
-      requestCardLoad(card, "initial", now + index);
-    });
-
+    syncVisibleCardLoads("initial");
     processLoadQueue();
   }
 
@@ -2798,7 +2795,7 @@
   }
 
   function ensureLoadCapacity(incomingCard) {
-    while (getActivePlayerCount() + state.loadingCount >= MAX_ACTIVE_PLAYERS) {
+    while (getActivePlayerCount() + state.loadingCount >= getPlayerLoadBudget()) {
       const released = releaseOneFarCard(incomingCard);
       if (!released) {
         return false;
@@ -2847,6 +2844,76 @@
     cardToRelease.shouldBeLoaded = false;
     disposeCardPlayer(cardToRelease, "");
     return true;
+  }
+
+  // 根据当前屏幕尺寸和网格列数计算首屏与常驻的播放器预算。
+  function getPlayerLoadBudget() {
+    if (!dom.gridContainer) {
+      return DEFAULT_PLAYER_LOAD_BUDGET;
+    }
+
+    const gridStyle = window.getComputedStyle(dom.gridContainer);
+    const columnCount = Math.max(
+      1,
+      String(gridStyle.gridTemplateColumns || "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .length || 1
+    );
+    const firstCard = state.cards.values().next().value || null;
+    const cardRect = firstCard && firstCard.root ? firstCard.root.getBoundingClientRect() : null;
+    const cardHeight = Math.max(1, Math.round(cardRect && cardRect.height ? cardRect.height : 300));
+    const gapValue = Number.parseFloat(gridStyle.rowGap || gridStyle.gap || "12");
+    const rowGap = Number.isFinite(gapValue) ? Math.max(0, gapValue) : 12;
+    const gridRect = dom.gridContainer.getBoundingClientRect();
+    const visibleGridHeight = Math.max(0, Math.round(window.innerHeight - gridRect.top));
+    const rowSpan = cardHeight + rowGap;
+    const visibleRows = Math.max(1, Math.min(2, Math.ceil((visibleGridHeight + rowGap) / rowSpan)));
+
+    return Math.max(1, columnCount * visibleRows);
+  }
+
+  // 刷新预算并在尺寸变化时补齐或释放多余的播放器。
+  function syncPlayerLoadBudget() {
+    const nextBudget = getPlayerLoadBudget();
+    const previousBudget = state.playerLoadBudget || DEFAULT_PLAYER_LOAD_BUDGET;
+
+    state.playerLoadBudget = nextBudget;
+
+    if (nextBudget < previousBudget) {
+      enforcePlayerLoadBudget(nextBudget);
+    }
+
+    syncVisibleCardLoads("resize");
+    processLoadQueue();
+  }
+
+  // 释放超出当前预算的远端播放器，避免窗口缩小后仍占用资源。
+  function enforcePlayerLoadBudget(targetBudget) {
+    const budget = Math.max(1, Number(targetBudget) || DEFAULT_PLAYER_LOAD_BUDGET);
+
+    while (getActivePlayerCount() + state.loadingCount > budget) {
+      const released = releaseOneFarCard(null);
+      if (!released) {
+        break;
+      }
+    }
+  }
+
+  // 按当前预算把前排卡片放入加载窗口，窗口变大时会自动补齐更多窗格。
+  function syncVisibleCardLoads(reason) {
+    const cards = Array.from(state.cards.values()).sort((left, right) => {
+      return (left.orderIndex || 0) - (right.orderIndex || 0);
+    });
+    const budget = Math.max(1, state.playerLoadBudget || DEFAULT_PLAYER_LOAD_BUDGET);
+    const now = Date.now();
+
+    cards.slice(0, budget).forEach((card, index) => {
+      card.isVisible = true;
+      card.lastVisibleAt = now + index;
+      requestCardLoad(card, reason || "initial", now + index);
+    });
   }
 
   function getLoadPriority(card) {
