@@ -1,12 +1,13 @@
 const http = require("http");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const { randomUUID } = require("crypto");
 const { chromium } = require("playwright-core");
 const yazl = require("yazl");
 
 const ROOT = __dirname;
-const HOST = process.env.HOST || "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 3770);
 const SESSION_TTL_MS = 30 * 60 * 1000;
 const EDGE_EXECUTABLE_PATHS = [
@@ -769,7 +770,60 @@ function pickPreferredSkinName(skinHints) {
   return defaultSkin.name;
 }
 
-function pickRuntimeCandidates(version) {
+// 根据 skeleton 版本选择可回退的 Spine 播放运行时。
+// 提取用于判断运行时兼容性的 Spine 资源特征。
+function extractRuntimeCompatibilityHints(jsonText, atlasText) {
+  const hints = {
+    atlasScale: extractAtlasScale(atlasText),
+    rootChildScale: 1,
+    meshCount: 0,
+    weightedMeshCount: 0
+  };
+
+  try {
+    const data = JSON.parse(jsonText);
+    const skins = Array.isArray(data && data.skins)
+      ? data.skins
+      : Object.keys(data && data.skins || {}).map((name) => data.skins[name]);
+
+    hints.rootChildScale = extractRootChildScale(data);
+
+    skins.forEach((skin) => {
+      const attachments = skin && skin.attachments ? skin.attachments : {};
+      Object.values(attachments).forEach((slotAttachments) => {
+        Object.values(slotAttachments || {}).forEach((attachment) => {
+          if (!attachment || attachment.type !== "mesh") {
+            return;
+          }
+
+          hints.meshCount += 1;
+          if (Array.isArray(attachment.vertices)
+            && Array.isArray(attachment.uvs)
+            && attachment.vertices.length !== attachment.uvs.length) {
+            hints.weightedMeshCount += 1;
+          }
+        });
+      });
+    });
+  } catch {
+  }
+
+  return hints;
+}
+
+// 判断 4.1 声明资源是否需要优先使用新版 4.x 播放器。
+function shouldPreferModernRuntimeForLegacy41(version, hints) {
+  return /^4\.1(?:\.|$)/.test(String(version || ""))
+    && hints
+    && hints.atlasScale > 0
+    && hints.atlasScale < 1
+    && hints.rootChildScale > 0
+    && hints.rootChildScale < 1
+    && hints.weightedMeshCount > 0;
+}
+
+// 根据 skeleton 版本和资源特征选择可回退的 Spine 播放运行时。
+function pickRuntimeCandidates(version, compatibilityHints) {
   if (!version) {
     return ["4.2", "4.1", "4.0", "3.8"];
   }
@@ -782,9 +836,9 @@ function pickRuntimeCandidates(version) {
   if (fromMatch) {
     const currentRuntime = version.match(/^(4\.\d+)/);
     return Array.from(new Set([
-      fromMatch[1],
       currentRuntime ? currentRuntime[1] : "",
       "4.2",
+      fromMatch[1],
       "4.1",
       "4.0",
       "3.8"
@@ -792,7 +846,11 @@ function pickRuntimeCandidates(version) {
   }
 
   if (version.startsWith("4.2")) return ["4.2", "4.1", "4.0", "3.8"];
-  if (version.startsWith("4.1")) return ["4.1", "4.2", "4.0", "3.8"];
+  if (version.startsWith("4.1")) {
+    return shouldPreferModernRuntimeForLegacy41(version, compatibilityHints)
+      ? ["4.2", "4.1", "4.0", "3.8"]
+      : ["4.1", "4.2", "4.0", "3.8"];
+  }
   if (version.startsWith("4.0")) return ["4.0", "4.1", "4.2", "3.8"];
   return ["4.2", "4.1", "4.0", "3.8"];
 }
@@ -891,6 +949,46 @@ function createFileRecord(resourcePath, buffer, contentType) {
     buffer,
     contentType
   };
+}
+
+// 获取本机可用于局域网访问的 IPv4 地址。
+function getLanIpv4Addresses() {
+  const addresses = [];
+  const networks = os.networkInterfaces();
+
+  Object.values(networks).forEach((items) => {
+    (items || []).forEach((item) => {
+      if (!item || item.family !== "IPv4" || item.internal || !item.address) {
+        return;
+      }
+
+      addresses.push(item.address);
+    });
+  });
+
+  return Array.from(new Set(addresses));
+}
+
+// 打印本机访问地址和局域网共享地址。
+function printServerAddresses(host, port) {
+  const localUrl = `http://127.0.0.1:${port}`;
+  console.log(`本机访问地址: ${localUrl}`);
+
+  if (host !== "0.0.0.0" && host !== "::") {
+    console.log(`当前仅监听: http://${host}:${port}`);
+    console.log("如需局域网共享，请不要设置 HOST，或设置 HOST=0.0.0.0。");
+    return;
+  }
+
+  const lanAddresses = getLanIpv4Addresses();
+  if (!lanAddresses.length) {
+    console.log("局域网共享地址: 未检测到可用 IPv4 地址。");
+    return;
+  }
+
+  lanAddresses.forEach((address) => {
+    console.log(`局域网共享地址: http://${address}:${port}`);
+  });
 }
 
 function buildSkippedReasonSummary(skipped) {
@@ -1069,6 +1167,7 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
     const detectedVersion = detectSpineVersion(jsonText);
     const skinHints = extractSkinHints(jsonText);
     const preferredRenderSize = extractPreferredRenderSize(jsonText, atlasText);
+    const runtimeCompatibilityHints = extractRuntimeCompatibilityHints(jsonText, atlasText);
     const groupId = `group_${index + 1}`;
 
     for (const file of stagedFiles) {
@@ -1097,7 +1196,7 @@ async function buildSessionData(sessionId, targetUrl, collected, preferredArchiv
       renderHeight: preferredRenderSize.height,
       usesPremultipliedAlpha: extractAtlasPma(atlasText),
       detectedVersion,
-      runtimeCandidates: pickRuntimeCandidates(detectedVersion),
+      runtimeCandidates: pickRuntimeCandidates(detectedVersion, runtimeCompatibilityHints),
       animationHints: extractAnimationNameHints(jsonText),
       skinHints,
       preferredSkinName: pickPreferredSkinName(skinHints),
@@ -1207,6 +1306,7 @@ async function buildLocalSessionData(sessionId, uploadedFiles, sourceLabel = "lo
     const detectedVersion = detectSpineVersion(jsonText);
     const skinHints = extractSkinHints(jsonText);
     const preferredRenderSize = extractPreferredRenderSize(jsonText, atlasText);
+    const runtimeCompatibilityHints = extractRuntimeCompatibilityHints(jsonText, atlasText);
     const groupId = `local_group_${index + 1}`;
 
     groups.push({
@@ -1228,7 +1328,7 @@ async function buildLocalSessionData(sessionId, uploadedFiles, sourceLabel = "lo
       renderHeight: preferredRenderSize.height,
       usesPremultipliedAlpha: extractAtlasPma(atlasText),
       detectedVersion,
-      runtimeCandidates: pickRuntimeCandidates(detectedVersion),
+      runtimeCandidates: pickRuntimeCandidates(detectedVersion, runtimeCompatibilityHints),
       animationHints: extractAnimationNameHints(jsonText),
       skinHints,
       preferredSkinName: pickPreferredSkinName(skinHints),
@@ -1596,7 +1696,7 @@ server.on("error", (error) => {
 server.listen(PORT, HOST, () => {
   const actualHost = HOST === "0.0.0.0" ? "127.0.0.1" : HOST;
   runnerUrl = `http://${actualHost}:${PORT}/__runner__`;
-  console.log(`Server running at http://${actualHost}:${PORT}`);
+  printServerAddresses(HOST, PORT);
 });
 
 process.on("SIGINT", async () => {
