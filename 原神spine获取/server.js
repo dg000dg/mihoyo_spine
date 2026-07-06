@@ -893,6 +893,21 @@ function createFileRecord(resourcePath, buffer, contentType) {
   };
 }
 
+function buildSkippedReasonSummary(skipped) {
+  const lines = Array.isArray(skipped)
+    ? skipped
+        .filter((item) => item && item.reason)
+        .slice(0, 3)
+        .map((item) => `${item.id || "未命名"}: ${item.reason}`)
+    : [];
+
+  if (!lines.length) {
+    return "";
+  }
+
+  return `\n具体原因: ${lines.join(" | ")}${Array.isArray(skipped) && skipped.length > lines.length ? " ..." : ""}`;
+}
+
 function compareGroupsByImageSize(left, right) {
   const sizeDelta = Number(right && right.imageByteSize || 0) - Number(left && left.imageByteSize || 0);
   if (sizeDelta !== 0) {
@@ -1235,12 +1250,13 @@ async function buildLocalSessionData(sessionId, uploadedFiles, sourceLabel = "lo
 }
 
 function buildSessionPayload(session) {
+  const skipped = Array.isArray(session.skipped) ? session.skipped : [];
   return {
     sessionId: session.id,
     targetUrl: session.targetUrl,
     archiveName: session.archiveName,
     groupCount: session.groups.length,
-    skippedCount: session.skipped.length,
+    skippedCount: skipped.length,
     groups: session.groups.map((group) => ({
       id: group.id,
       fileName: group.fileName,
@@ -1262,7 +1278,8 @@ function buildSessionPayload(session) {
       skinHints: group.skinHints,
       preferredSkinName: group.preferredSkinName
     })),
-    skipped: session.skipped
+    skipped,
+    skippedSummary: buildSkippedReasonSummary(skipped)
   };
 }
 

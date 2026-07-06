@@ -900,7 +900,6 @@
   }
 
   function applyCardPlaybackSpeed(card) {
-    return;
     if (!card || !card.player) {
       return;
     }
@@ -915,119 +914,31 @@
   }
 
   function applyCardDebugRender(card) {
-    return;
     if (!card || !card.player) {
       return;
     }
     const bonesEnabled = Boolean(card.debugBonesEnabled);
     const pathsEnabled = Boolean(card.debugPathsEnabled);
     const meshesEnabled = Boolean(card.debugMeshesEnabled);
-    const meshHullEnabled = Boolean(card.debugMeshHullEnabled);
-    const meshTrianglesEnabled = Boolean(card.debugMeshTrianglesEnabled);
-    const boundingBoxesEnabled = Boolean(card.debugBoundingBoxesEnabled);
+    const hullsEnabled = Boolean(card.debugHullsEnabled);
+    const boundsEnabled = Boolean(card.debugBoundsEnabled);
+    const regionsEnabled = Boolean(card.debugRegionsEnabled);
+    const pointsEnabled = Boolean(card.debugPointsEnabled);
     const clippingEnabled = Boolean(card.debugClippingEnabled);
-    const enabled = bonesEnabled || pathsEnabled || meshesEnabled || meshHullEnabled || meshTrianglesEnabled || boundingBoxesEnabled || clippingEnabled;
-    if (typeof card.player.debugRender === "boolean") {
-      card.player.debugRender = enabled;
-    }
-    if (card.player.debug && typeof card.player.debug === "object") {
-      if ("bones" in card.player.debug) {
-        card.player.debug.bones = bonesEnabled;
-      }
-      if ("paths" in card.player.debug) {
-        card.player.debug.paths = pathsEnabled;
-      }
-      if ("meshes" in card.player.debug) {
-        card.player.debug.meshes = meshesEnabled || meshHullEnabled || meshTrianglesEnabled;
-      }
-      if ("meshHull" in card.player.debug) {
-        card.player.debug.meshHull = meshHullEnabled;
-      }
-      if ("meshTriangles" in card.player.debug) {
-        card.player.debug.meshTriangles = meshTrianglesEnabled;
-      }
-      if ("boundingBoxes" in card.player.debug) {
-        card.player.debug.boundingBoxes = boundingBoxesEnabled;
-      }
-      if ("clipping" in card.player.debug) {
-        card.player.debug.clipping = clippingEnabled;
-      }
-    }
-  }
-
-  function drawCardDebugTrail(card) {
-    return;
-    if (!card || !card.debugTrailCanvas) {
+    const config = card.player.config && typeof card.player.config === "object" ? card.player.config : null;
+    const debug = config && typeof config.debug === "object" ? config.debug : null;
+    if (!debug) {
       return;
     }
 
-    const show = Boolean(card.isModalOpen && card.debugTrailEnabled);
-    card.debugTrailCanvas.hidden = !show;
-    if (!show) {
-      card.debugTrailPoints = [];
-      return;
-    }
-
-    const canvas = card.mount && card.mount.querySelector ? card.mount.querySelector("canvas") : null;
-    const bounds = readPlayerBounds(card.player);
-    if (!canvas || !bounds) {
-      return;
-    }
-
-    const width = Math.max(1, Math.round(canvas.clientWidth || canvas.width || 0));
-    const height = Math.max(1, Math.round(canvas.clientHeight || canvas.height || 0));
-    if (card.debugTrailCanvas.width !== width || card.debugTrailCanvas.height !== height) {
-      card.debugTrailCanvas.width = width;
-      card.debugTrailCanvas.height = height;
-    }
-
-    const center = {
-      x: Number(bounds.x) + Number(bounds.width) / 2,
-      y: Number(bounds.y) + Number(bounds.height) / 2
-    };
-    if (Number.isFinite(center.x) && Number.isFinite(center.y)) {
-      card.debugTrailPoints.push(center);
-      if (card.debugTrailPoints.length > 120) {
-        card.debugTrailPoints.shift();
-      }
-    }
-
-    const points = card.debugTrailPoints;
-    const ctx = card.debugTrailCanvas.getContext("2d");
-    if (!ctx || points.length < 2) {
-      return;
-    }
-
-    let minX = points[0].x;
-    let maxX = points[0].x;
-    let minY = points[0].y;
-    let maxY = points[0].y;
-    for (const point of points) {
-      if (point.x < minX) minX = point.x;
-      if (point.x > maxX) maxX = point.x;
-      if (point.y < minY) minY = point.y;
-      if (point.y > maxY) maxY = point.y;
-    }
-    const spanX = Math.max(1e-6, maxX - minX);
-    const spanY = Math.max(1e-6, maxY - minY);
-    const pad = 20;
-    const drawW = Math.max(1, width - pad * 2);
-    const drawH = Math.max(1, height - pad * 2);
-
-    ctx.clearRect(0, 0, width, height);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(255, 106, 106, 0.9)";
-    ctx.beginPath();
-    points.forEach((point, index) => {
-      const x = pad + ((point.x - minX) / spanX) * drawW;
-      const y = pad + ((point.y - minY) / spanY) * drawH;
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    });
-    ctx.stroke();
+    debug.bones = bonesEnabled;
+    debug.paths = pathsEnabled;
+    debug.meshes = meshesEnabled;
+    debug.hulls = hullsEnabled;
+    debug.bounds = boundsEnabled;
+    debug.regions = regionsEnabled;
+    debug.points = pointsEnabled;
+    debug.clipping = clippingEnabled;
   }
 
   function getFrameStepProgress(card) {
@@ -1139,9 +1050,6 @@
     state.frameSyncRafId = window.requestAnimationFrame(stepFrameSyncLoop);
 
     for (const card of state.cards.values()) {
-      if (card && card.isModalOpen) {
-        drawCardDebugTrail(card);
-      }
       if (!card || card.isScrubbing || card.isManualFrameControl || !card.player || !card.frameScrubberWrap || card.frameScrubberWrap.hidden) {
         continue;
       }
@@ -1922,12 +1830,14 @@
     state.sessionArchiveBaseName = parseArchiveBaseName(payload.archiveName);
     const groups = Array.isArray(payload.groups) ? payload.groups : [];
     const skippedCount = Number(payload.skippedCount || 0);
+    const skippedSummary = String(payload.skippedSummary || "").trim();
+    const skippedDetail = skippedSummary ? `\n${skippedSummary}` : "";
 
     if (!groups.length) {
-      showEmptyState("没有找到可直接预览的 Spine 资源。");
+      showEmptyState(`没有找到可直接预览的 Spine 资源。${skippedDetail}`);
       setStatus(
         skippedCount
-          ? `没有可预览的资源，已跳过 ${skippedCount} 项不完整数据。`
+          ? `没有可预览的资源，已跳过 ${skippedCount} 项不完整数据。${skippedDetail}`
           : "没有找到可直接预览的 Spine 资源。",
         "error"
       );
@@ -1939,7 +1849,7 @@
     hideEmptyState();
     updateBadges();
     setStatus(
-      `${successPrefix}，共找到 ${groups.length} 个 Spine${skippedCount ? `，跳过 ${skippedCount} 个不完整资源。` : "。"}`,
+      `${successPrefix}，共找到 ${groups.length} 个 Spine${skippedCount ? `，跳过 ${skippedCount} 个不完整资源。${skippedDetail}` : "。"}`,
       "success"
     );
     queueInitialCards();
@@ -2199,13 +2109,6 @@
     });
     speedLabel.appendChild(speedList);
 
-    const trailLabel = document.createElement("label");
-    trailLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const trailToggle = document.createElement("input");
-    trailToggle.type = "checkbox";
-    trailLabel.appendChild(trailToggle);
-    trailLabel.appendChild(document.createTextNode("轨迹"));
-
     const bonesLabel = document.createElement("label");
     bonesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
     const bonesToggle = document.createElement("input");
@@ -2226,40 +2129,35 @@
     meshesToggle.type = "checkbox";
     meshesLabel.appendChild(meshesToggle);
 
-    const meshHullLabel = document.createElement("label");
-    meshHullLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const meshHullToggle = document.createElement("input");
-    meshHullToggle.type = "checkbox";
-    meshHullLabel.appendChild(meshHullToggle);
+    const hullsLabel = document.createElement("label");
+    hullsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const hullsToggle = document.createElement("input");
+    hullsToggle.type = "checkbox";
+    hullsLabel.appendChild(hullsToggle);
 
-    const meshTrianglesLabel = document.createElement("label");
-    meshTrianglesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const meshTrianglesToggle = document.createElement("input");
-    meshTrianglesToggle.type = "checkbox";
-    meshTrianglesLabel.appendChild(meshTrianglesToggle);
+    const boundsLabel = document.createElement("label");
+    boundsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const boundsToggle = document.createElement("input");
+    boundsToggle.type = "checkbox";
+    boundsLabel.appendChild(boundsToggle);
 
-    const boundingBoxesLabel = document.createElement("label");
-    boundingBoxesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const boundingBoxesToggle = document.createElement("input");
-    boundingBoxesToggle.type = "checkbox";
-    boundingBoxesLabel.appendChild(boundingBoxesToggle);
+    const regionsLabel = document.createElement("label");
+    regionsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const regionsToggle = document.createElement("input");
+    regionsToggle.type = "checkbox";
+    regionsLabel.appendChild(regionsToggle);
+
+    const pointsLabel = document.createElement("label");
+    pointsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
+    const pointsToggle = document.createElement("input");
+    pointsToggle.type = "checkbox";
+    pointsLabel.appendChild(pointsToggle);
 
     const clippingLabel = document.createElement("label");
     clippingLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
     const clippingToggle = document.createElement("input");
     clippingToggle.type = "checkbox";
     clippingLabel.appendChild(clippingToggle);
-    const normalizeToggleLabelAscii = (label, icon, title) => {
-      while (label.childNodes.length > 1) {
-        label.removeChild(label.lastChild);
-      }
-      label.appendChild(document.createTextNode(icon));
-      label.title = title;
-    };
-    normalizeToggleLabelAscii(trailLabel, String.fromCodePoint(0x223F), "运动轨迹");
-    normalizeToggleLabelAscii(bonesLabel, String.fromCodePoint(0x1F9B4), "骨骼");
-    normalizeToggleLabelAscii(pathsLabel, String.fromCodePoint(0x1F9ED), "路径");
-    normalizeToggleLabelAscii(meshesLabel, String.fromCodePoint(0x25A6), "网格");
     const normalizeToggleLabel = (label, icon, title) => {
       while (label.childNodes.length > 1) {
         label.removeChild(label.lastChild);
@@ -2267,14 +2165,13 @@
       label.appendChild(document.createTextNode(icon));
       label.title = title;
     };
-    normalizeToggleLabel(trailLabel, "〰", "运动轨迹");
     normalizeToggleLabel(bonesLabel, "🦴", "骨骼");
     normalizeToggleLabel(pathsLabel, "🧭", "路径");
     normalizeToggleLabel(meshesLabel, "▦", "网格");
-
-    normalizeToggleLabel(meshHullLabel, "⬠", "网格外框");
-    normalizeToggleLabel(meshTrianglesLabel, "△", "网格三角");
-    normalizeToggleLabel(boundingBoxesLabel, "⬚", "边界框");
+    normalizeToggleLabel(hullsLabel, "⬠", "网格外框");
+    normalizeToggleLabel(boundsLabel, "⬚", "边界框");
+    normalizeToggleLabel(regionsLabel, "▭", "区域");
+    normalizeToggleLabel(pointsLabel, "•", "点");
     normalizeToggleLabel(clippingLabel, "✂", "裁剪");
 
     const speedMenu = document.createElement("div");
@@ -2303,33 +2200,24 @@
     const debugMenuPopup = document.createElement("div");
     debugMenuPopup.className = "fullscreen-debug-popup fullscreen-debug-popup--debug";
     debugMenuPopup.hidden = true;
-    debugMenuPopup.appendChild(trailLabel);
     debugMenuPopup.appendChild(bonesLabel);
     debugMenuPopup.appendChild(pathsLabel);
     debugMenuPopup.appendChild(meshesLabel);
-    debugMenuPopup.appendChild(meshHullLabel);
-    debugMenuPopup.appendChild(meshTrianglesLabel);
-    debugMenuPopup.appendChild(boundingBoxesLabel);
+    debugMenuPopup.appendChild(hullsLabel);
+    debugMenuPopup.appendChild(boundsLabel);
+    debugMenuPopup.appendChild(regionsLabel);
+    debugMenuPopup.appendChild(pointsLabel);
     debugMenuPopup.appendChild(clippingLabel);
-    debugMenuButton.textContent = String.fromCodePoint(0x1F6E0);
-    debugMenuButton.title = "Debug";
-    speedMenuButton.textContent = "⚡";
-    speedMenuButton.title = "设置播放速度";
     debugMenuButton.textContent = "🛠";
-    debugMenuButton.title = "调试开关";
+    debugMenuButton.title = "Spine 官方调试项";
     debugMenu.appendChild(debugMenuButton);
     debugMenu.appendChild(debugMenuPopup);
 
     debugPanel.appendChild(speedMenu);
     debugPanel.appendChild(debugMenu);
 
-    const debugTrailCanvas = document.createElement("canvas");
-    debugTrailCanvas.className = "fullscreen-debug-trail";
-    debugTrailCanvas.hidden = true;
-
     preview.appendChild(mount);
     preview.appendChild(overlay);
-    preview.appendChild(debugTrailCanvas);
     preview.appendChild(debugPanel);
     toolbar.appendChild(checkbox);
     toolbar.appendChild(name);
@@ -2390,15 +2278,14 @@
       speedMenuPopup,
       debugMenuButton,
       debugMenuPopup,
-      trailToggle,
       bonesToggle,
       pathsToggle,
       meshesToggle,
-      meshHullToggle,
-      meshTrianglesToggle,
-      boundingBoxesToggle,
+      hullsToggle,
+      boundsToggle,
+      regionsToggle,
+      pointsToggle,
       clippingToggle,
-      debugTrailCanvas,
       player: null,
       loadedWithNativeControls: false,
       animations: [],
@@ -2426,15 +2313,14 @@
       isScrubbing: false,
       isManualFrameControl: false,
       playbackSpeed: 1,
-      debugTrailEnabled: false,
       debugBonesEnabled: false,
       debugPathsEnabled: false,
       debugMeshesEnabled: false,
-      debugMeshHullEnabled: false,
-      debugMeshTrianglesEnabled: false,
-      debugBoundingBoxesEnabled: false,
-      debugClippingEnabled: false,
-      debugTrailPoints: []
+      debugHullsEnabled: false,
+      debugBoundsEnabled: false,
+      debugRegionsEnabled: false,
+      debugPointsEnabled: false,
+      debugClippingEnabled: false
     };
     const syncSpeedButtonUi = (options) => {
       const shouldClosePopup = Boolean(options && options.closePopup);
@@ -2531,13 +2417,6 @@
         syncSpeedButtonUi({ closePopup: true });
       });
     });
-    trailToggle.addEventListener("change", () => {
-      card.debugTrailEnabled = Boolean(trailToggle.checked);
-      if (!card.debugTrailEnabled) {
-        card.debugTrailPoints = [];
-      }
-      drawCardDebugTrail(card);
-    });
     bonesToggle.addEventListener("change", () => {
       card.debugBonesEnabled = Boolean(bonesToggle.checked);
       applyCardDebugRender(card);
@@ -2550,16 +2429,20 @@
       card.debugMeshesEnabled = Boolean(meshesToggle.checked);
       applyCardDebugRender(card);
     });
-    meshHullToggle.addEventListener("change", () => {
-      card.debugMeshHullEnabled = Boolean(meshHullToggle.checked);
+    hullsToggle.addEventListener("change", () => {
+      card.debugHullsEnabled = Boolean(hullsToggle.checked);
       applyCardDebugRender(card);
     });
-    meshTrianglesToggle.addEventListener("change", () => {
-      card.debugMeshTrianglesEnabled = Boolean(meshTrianglesToggle.checked);
+    boundsToggle.addEventListener("change", () => {
+      card.debugBoundsEnabled = Boolean(boundsToggle.checked);
       applyCardDebugRender(card);
     });
-    boundingBoxesToggle.addEventListener("change", () => {
-      card.debugBoundingBoxesEnabled = Boolean(boundingBoxesToggle.checked);
+    regionsToggle.addEventListener("change", () => {
+      card.debugRegionsEnabled = Boolean(regionsToggle.checked);
+      applyCardDebugRender(card);
+    });
+    pointsToggle.addEventListener("change", () => {
+      card.debugPointsEnabled = Boolean(pointsToggle.checked);
       applyCardDebugRender(card);
     });
     clippingToggle.addEventListener("change", () => {
@@ -2712,10 +2595,6 @@
     dom.previewModal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
     card.isVisible = false;
-    card.debugTrailPoints = [];
-    if (card.debugTrailCanvas) {
-      card.debugTrailCanvas.hidden = true;
-    }
     reloadCardPlayerForNativeControls(card);
     refreshCardFrameScrubber(card);
     syncFullscreenButtons();
@@ -2992,7 +2871,6 @@
     hydrateCardControls(card);
     applyCardPlaybackSpeed(card);
     applyCardDebugRender(card);
-    drawCardDebugTrail(card);
     setCardOverlay(card, "", "success", true);
   }
 
