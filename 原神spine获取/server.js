@@ -776,7 +776,6 @@ function extractRuntimeCompatibilityHints(jsonText, atlasText) {
   const hints = {
     atlasScale: extractAtlasScale(atlasText),
     rootChildScale: 1,
-    meshCount: 0,
     weightedMeshCount: 0
   };
 
@@ -796,7 +795,6 @@ function extractRuntimeCompatibilityHints(jsonText, atlasText) {
             return;
           }
 
-          hints.meshCount += 1;
           if (Array.isArray(attachment.vertices)
             && Array.isArray(attachment.uvs)
             && attachment.vertices.length !== attachment.uvs.length) {

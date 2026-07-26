@@ -913,34 +913,6 @@
     }
   }
 
-  function applyCardDebugRender(card) {
-    if (!card || !card.player) {
-      return;
-    }
-    const bonesEnabled = Boolean(card.debugBonesEnabled);
-    const pathsEnabled = Boolean(card.debugPathsEnabled);
-    const meshesEnabled = Boolean(card.debugMeshesEnabled);
-    const hullsEnabled = Boolean(card.debugHullsEnabled);
-    const boundsEnabled = Boolean(card.debugBoundsEnabled);
-    const regionsEnabled = Boolean(card.debugRegionsEnabled);
-    const pointsEnabled = Boolean(card.debugPointsEnabled);
-    const clippingEnabled = Boolean(card.debugClippingEnabled);
-    const config = card.player.config && typeof card.player.config === "object" ? card.player.config : null;
-    const debug = config && typeof config.debug === "object" ? config.debug : null;
-    if (!debug) {
-      return;
-    }
-
-    debug.bones = bonesEnabled;
-    debug.paths = pathsEnabled;
-    debug.meshes = meshesEnabled;
-    debug.hulls = hullsEnabled;
-    debug.bounds = boundsEnabled;
-    debug.regions = regionsEnabled;
-    debug.points = pointsEnabled;
-    debug.clipping = clippingEnabled;
-  }
-
   function getFrameStepProgress(card) {
     const animationItem = getSelectedAnimationItem(card);
     const durationSeconds = getAnimationDurationSeconds(animationItem && animationItem.animation);
@@ -1453,9 +1425,7 @@
   }
 
   async function createExportPlayerForCard(card, mount) {
-    const runtimeCandidates = Array.isArray(card.group.runtimeCandidates) && card.group.runtimeCandidates.length
-      ? card.group.runtimeCandidates
-      : defaultRuntimeOrder;
+    const runtimeCandidates = getCardRuntimeCandidates(card);
 
     let lastError = null;
     for (const candidate of runtimeCandidates) {
@@ -1526,6 +1496,18 @@
 
   function getPlayerRuntimeKey(player) {
     return player && player.__spineRuntimeKey ? player.__spineRuntimeKey : "";
+  }
+
+  // 获取当前卡片应使用的 Spine 播放运行时列表。
+  function getCardRuntimeCandidates(card) {
+    const selectedRuntimeKey = card && card.selectedRuntimeKey;
+    if (selectedRuntimeKey && runtimeRegistry[selectedRuntimeKey]) {
+      return [selectedRuntimeKey];
+    }
+
+    return Array.isArray(card.group.runtimeCandidates) && card.group.runtimeCandidates.length
+      ? card.group.runtimeCandidates
+      : defaultRuntimeOrder;
   }
 
   function hasFiniteBounds(bounds) {
@@ -2066,6 +2048,25 @@
     skinSelect.title = "切换皮肤";
     skinSelect.hidden = true;
 
+    const runtimeSelect = document.createElement("select");
+    runtimeSelect.className = "mini-select";
+    runtimeSelect.title = "Spine 播放版本";
+    runtimeSelect.hidden = true;
+    const autoRuntimeOption = document.createElement("option");
+    autoRuntimeOption.value = "";
+    autoRuntimeOption.textContent = "自动";
+    runtimeSelect.appendChild(autoRuntimeOption);
+    defaultRuntimeOrder.forEach((runtimeKey) => {
+      if (!runtimeRegistry[runtimeKey]) {
+        return;
+      }
+
+      const option = document.createElement("option");
+      option.value = runtimeKey;
+      option.textContent = `Spine ${runtimeKey}`;
+      runtimeSelect.appendChild(option);
+    });
+
     const fullscreenButton = document.createElement("button");
     fullscreenButton.type = "button";
     fullscreenButton.className = "icon-button";
@@ -2087,138 +2088,8 @@
     overlay.className = "card-overlay";
     overlay.textContent = IDLE_CARD_MESSAGE;
 
-    const debugPanel = document.createElement("div");
-    debugPanel.className = "fullscreen-debug-controls";
-    debugPanel.hidden = true;
-
-    const speedLabel = document.createElement("label");
-    speedLabel.className = "fullscreen-debug-controls__item";
-    speedLabel.textContent = "";
-    speedLabel.textContent = "速度";
-    const speedPresets = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
-    const speedList = document.createElement("div");
-    speedList.className = "fullscreen-speed-list";
-    const speedButtons = speedPresets.map((value) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "fullscreen-speed-option";
-      button.textContent = `${value}x`;
-      button.dataset.speed = String(value);
-      speedList.appendChild(button);
-      return button;
-    });
-    speedLabel.appendChild(speedList);
-
-    const bonesLabel = document.createElement("label");
-    bonesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const bonesToggle = document.createElement("input");
-    bonesToggle.type = "checkbox";
-    bonesLabel.appendChild(bonesToggle);
-    bonesLabel.appendChild(document.createTextNode("骨骼"));
-
-    const pathsLabel = document.createElement("label");
-    pathsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const pathsToggle = document.createElement("input");
-    pathsToggle.type = "checkbox";
-    pathsLabel.appendChild(pathsToggle);
-    pathsLabel.appendChild(document.createTextNode("路径"));
-
-    const meshesLabel = document.createElement("label");
-    meshesLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const meshesToggle = document.createElement("input");
-    meshesToggle.type = "checkbox";
-    meshesLabel.appendChild(meshesToggle);
-
-    const hullsLabel = document.createElement("label");
-    hullsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const hullsToggle = document.createElement("input");
-    hullsToggle.type = "checkbox";
-    hullsLabel.appendChild(hullsToggle);
-
-    const boundsLabel = document.createElement("label");
-    boundsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const boundsToggle = document.createElement("input");
-    boundsToggle.type = "checkbox";
-    boundsLabel.appendChild(boundsToggle);
-
-    const regionsLabel = document.createElement("label");
-    regionsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const regionsToggle = document.createElement("input");
-    regionsToggle.type = "checkbox";
-    regionsLabel.appendChild(regionsToggle);
-
-    const pointsLabel = document.createElement("label");
-    pointsLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const pointsToggle = document.createElement("input");
-    pointsToggle.type = "checkbox";
-    pointsLabel.appendChild(pointsToggle);
-
-    const clippingLabel = document.createElement("label");
-    clippingLabel.className = "fullscreen-debug-controls__item fullscreen-debug-controls__toggle";
-    const clippingToggle = document.createElement("input");
-    clippingToggle.type = "checkbox";
-    clippingLabel.appendChild(clippingToggle);
-    const normalizeToggleLabel = (label, icon, title) => {
-      while (label.childNodes.length > 1) {
-        label.removeChild(label.lastChild);
-      }
-      label.appendChild(document.createTextNode(icon));
-      label.title = title;
-    };
-    normalizeToggleLabel(bonesLabel, "🦴", "骨骼");
-    normalizeToggleLabel(pathsLabel, "🧭", "路径");
-    normalizeToggleLabel(meshesLabel, "▦", "网格");
-    normalizeToggleLabel(hullsLabel, "⬠", "网格外框");
-    normalizeToggleLabel(boundsLabel, "⬚", "边界框");
-    normalizeToggleLabel(regionsLabel, "▭", "区域");
-    normalizeToggleLabel(pointsLabel, "•", "点");
-    normalizeToggleLabel(clippingLabel, "✂", "裁剪");
-
-    const speedMenu = document.createElement("div");
-    speedMenu.className = "fullscreen-debug-menu";
-    const speedMenuButton = document.createElement("button");
-    speedMenuButton.type = "button";
-    speedMenuButton.className = "fullscreen-debug-mini-button";
-    speedMenuButton.textContent = "⚡";
-    speedMenuButton.title = "设置播放速度";
-    const speedMenuPopup = document.createElement("div");
-    speedMenuPopup.className = "fullscreen-debug-popup fullscreen-debug-popup--speed";
-    speedMenuPopup.hidden = true;
-    speedMenuPopup.appendChild(speedLabel);
-    speedMenu.appendChild(speedMenuButton);
-    speedMenu.appendChild(speedMenuPopup);
-    speedMenuButton.textContent = String.fromCodePoint(0x26A1);
-    speedMenuButton.title = "速度";
-
-    const debugMenu = document.createElement("div");
-    debugMenu.className = "fullscreen-debug-menu";
-    const debugMenuButton = document.createElement("button");
-    debugMenuButton.type = "button";
-    debugMenuButton.className = "fullscreen-debug-mini-button";
-    debugMenuButton.textContent = "🛠";
-    debugMenuButton.title = "调试开关";
-    const debugMenuPopup = document.createElement("div");
-    debugMenuPopup.className = "fullscreen-debug-popup fullscreen-debug-popup--debug";
-    debugMenuPopup.hidden = true;
-    debugMenuPopup.appendChild(bonesLabel);
-    debugMenuPopup.appendChild(pathsLabel);
-    debugMenuPopup.appendChild(meshesLabel);
-    debugMenuPopup.appendChild(hullsLabel);
-    debugMenuPopup.appendChild(boundsLabel);
-    debugMenuPopup.appendChild(regionsLabel);
-    debugMenuPopup.appendChild(pointsLabel);
-    debugMenuPopup.appendChild(clippingLabel);
-    debugMenuButton.textContent = "🛠";
-    debugMenuButton.title = "Spine 官方调试项";
-    debugMenu.appendChild(debugMenuButton);
-    debugMenu.appendChild(debugMenuPopup);
-
-    debugPanel.appendChild(speedMenu);
-    debugPanel.appendChild(debugMenu);
-
     preview.appendChild(mount);
     preview.appendChild(overlay);
-    preview.appendChild(debugPanel);
     toolbar.appendChild(checkbox);
     toolbar.appendChild(name);
     toolbar.appendChild(renameInput);
@@ -2228,6 +2099,7 @@
     toolbar.appendChild(exportGifButton);
     toolbar.appendChild(exportProgress);
     toolbar.appendChild(skinSelect);
+    toolbar.appendChild(runtimeSelect);
     toolbar.appendChild(fullscreenButton);
 
     root.appendChild(toolbar);
@@ -2270,22 +2142,10 @@
       exportProgressFill,
       exportProgressValue,
       skinSelect,
+      runtimeSelect,
       fullscreenButton,
       mount,
       overlay,
-      debugPanel,
-      speedMenuButton,
-      speedMenuPopup,
-      debugMenuButton,
-      debugMenuPopup,
-      bonesToggle,
-      pathsToggle,
-      meshesToggle,
-      hullsToggle,
-      boundsToggle,
-      regionsToggle,
-      pointsToggle,
-      clippingToggle,
       player: null,
       loadedWithNativeControls: false,
       animations: [],
@@ -2297,6 +2157,7 @@
       unloadTimer: 0,
       selectedAnimationIndex: 0,
       selectedSkinName: group.preferredSkinName || "",
+      selectedRuntimeKey: "",
       lastVisibleAt: 0,
       isHovered: false,
       lastHoverAt: 0,
@@ -2313,27 +2174,6 @@
       isScrubbing: false,
       isManualFrameControl: false,
       playbackSpeed: 1,
-      debugBonesEnabled: false,
-      debugPathsEnabled: false,
-      debugMeshesEnabled: false,
-      debugHullsEnabled: false,
-      debugBoundsEnabled: false,
-      debugRegionsEnabled: false,
-      debugPointsEnabled: false,
-      debugClippingEnabled: false
-    };
-    const syncSpeedButtonUi = (options) => {
-      const shouldClosePopup = Boolean(options && options.closePopup);
-      speedMenuButton.textContent = String.fromCodePoint(0x26A1);
-      speedMenuButton.title = `Speed ${card.playbackSpeed}x`;
-      speedButtons.forEach((button) => {
-        const value = Number(button.dataset.speed);
-        const isActive = Math.abs(value - card.playbackSpeed) < 0.0001;
-        button.classList.toggle("is-active", isActive);
-      });
-      if (shouldClosePopup && card.speedMenuPopup) {
-        card.speedMenuPopup.hidden = true;
-      }
     };
 
     name.addEventListener("dblclick", () => {
@@ -2394,62 +2234,16 @@
     frameStepNextButton.addEventListener("click", () => {
       stepCardBySingleFrame(card, 1);
     });
-    speedMenuButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      speedMenuPopup.hidden = false;
-      debugMenuPopup.hidden = true;
+    runtimeSelect.addEventListener("change", () => {
+      card.selectedRuntimeKey = runtimeSelect.value;
+      if (card.player) {
+        disposeCardPlayer(card, "");
+      }
+      if (card.shouldBeLoaded) {
+        enqueueCardLoad(card);
+        processLoadQueue();
+      }
     });
-    debugMenuButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const nextHidden = !debugMenuPopup.hidden;
-      debugMenuPopup.hidden = nextHidden;
-      speedMenuPopup.hidden = true;
-    });
-    speedButtons.forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const speed = Number(button.dataset.speed);
-        card.playbackSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
-        applyCardPlaybackSpeed(card);
-        syncSpeedButtonUi({ closePopup: true });
-      });
-    });
-    bonesToggle.addEventListener("change", () => {
-      card.debugBonesEnabled = Boolean(bonesToggle.checked);
-      applyCardDebugRender(card);
-    });
-    pathsToggle.addEventListener("change", () => {
-      card.debugPathsEnabled = Boolean(pathsToggle.checked);
-      applyCardDebugRender(card);
-    });
-    meshesToggle.addEventListener("change", () => {
-      card.debugMeshesEnabled = Boolean(meshesToggle.checked);
-      applyCardDebugRender(card);
-    });
-    hullsToggle.addEventListener("change", () => {
-      card.debugHullsEnabled = Boolean(hullsToggle.checked);
-      applyCardDebugRender(card);
-    });
-    boundsToggle.addEventListener("change", () => {
-      card.debugBoundsEnabled = Boolean(boundsToggle.checked);
-      applyCardDebugRender(card);
-    });
-    regionsToggle.addEventListener("change", () => {
-      card.debugRegionsEnabled = Boolean(regionsToggle.checked);
-      applyCardDebugRender(card);
-    });
-    pointsToggle.addEventListener("change", () => {
-      card.debugPointsEnabled = Boolean(pointsToggle.checked);
-      applyCardDebugRender(card);
-    });
-    clippingToggle.addEventListener("change", () => {
-      card.debugClippingEnabled = Boolean(clippingToggle.checked);
-      applyCardDebugRender(card);
-    });
-    syncSpeedButtonUi({ closePopup: true });
     updateCardNameDisplay(card);
     refreshCardFrameScrubber(card);
 
@@ -2462,8 +2256,8 @@
       const otherExportActive = Boolean(findActiveGifExport(card));
       card.fullscreenButton.textContent = isActiveModal ? "退出全屏" : "全屏";
       card.fullscreenButton.title = isActiveModal ? "退出浮窗预览" : "打开浮窗预览";
-      if (card.debugPanel) {
-        card.debugPanel.hidden = true;
+      if (card.runtimeSelect) {
+        card.runtimeSelect.hidden = !isActiveModal;
       }
       card.exportImageButton.hidden = !isActiveModal;
       card.exportGifButton.hidden = !isActiveModal;
@@ -2821,9 +2615,7 @@
     setCardOverlay(card, `正在加载 ${card.group.fileName} ...`, "loading");
     const expectedShowControls = Boolean(card && card.isModalOpen);
 
-    const runtimeCandidates = Array.isArray(card.group.runtimeCandidates) && card.group.runtimeCandidates.length
-      ? card.group.runtimeCandidates
-      : defaultRuntimeOrder;
+    const runtimeCandidates = getCardRuntimeCandidates(card);
 
     let player = null;
     let lastError = null;
@@ -2870,7 +2662,6 @@
     attachCanvasRecovery(card, player, renderToken);
     hydrateCardControls(card);
     applyCardPlaybackSpeed(card);
-    applyCardDebugRender(card);
     setCardOverlay(card, "", "success", true);
   }
 
@@ -3054,6 +2845,13 @@
       card.selectedSkinName = preferredSkin || "";
       card.skinSelect.hidden = true;
       card.skinSelect.innerHTML = "";
+    }
+
+    if (card.runtimeSelect) {
+      card.runtimeSelect.value = card.selectedRuntimeKey || "";
+      card.runtimeSelect.title = card.selectedRuntimeKey
+        ? `Spine 播放版本（当前：${getPlayerRuntimeKey(card.player) || card.selectedRuntimeKey}）`
+        : "Spine 播放版本（自动）";
     }
 
     if (!animationItems.length) {
